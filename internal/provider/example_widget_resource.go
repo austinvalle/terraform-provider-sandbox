@@ -28,6 +28,11 @@ func (e *exampleWidgetResource) Schema(ctx context.Context, req resource.SchemaR
 			// ... other attributes ...
 
 			"existing_attribute": schema.StringAttribute{
+				Computed:           true,
+				DeprecationMessage: "use new_attribute instead",
+			},
+
+			"new_attribute": schema.StringAttribute{
 				Computed: true,
 			},
 		},
@@ -38,6 +43,7 @@ type exampleWidgetResourceData struct {
 	// ... other attributes ...
 
 	ExistingAttribute types.String `tfsdk:"existing_attribute"`
+	NewAttribute      types.String `tfsdk:"new_attribute"`
 }
 
 func (e *exampleWidgetResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -50,6 +56,7 @@ func (e *exampleWidgetResource) Create(ctx context.Context, req resource.CreateR
 
 	// ... other logic ...
 	data.ExistingAttribute = types.StringValue("some val")
+	data.NewAttribute = types.StringValue("some val")
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -64,6 +71,7 @@ func (e *exampleWidgetResource) Read(ctx context.Context, req resource.ReadReque
 
 	// ... other logic ...
 	data.ExistingAttribute = types.StringValue("some val")
+	data.NewAttribute = types.StringValue("some val")
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -78,6 +86,7 @@ func (e *exampleWidgetResource) Update(ctx context.Context, req resource.UpdateR
 
 	// ... other logic ...
 	data.ExistingAttribute = types.StringValue("some val")
+	data.NewAttribute = types.StringValue("some val")
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
