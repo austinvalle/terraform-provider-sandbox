@@ -27,8 +27,8 @@ func (e *exampleWidgetResource) Schema(ctx context.Context, req resource.SchemaR
 		Attributes: map[string]schema.Attribute{
 			// ... other attributes ...
 
-			"new_attribute": schema.StringAttribute{
-				Required: true,
+			"existing_attribute": schema.StringAttribute{
+				Optional: true,
 			},
 		},
 	}
@@ -37,7 +37,7 @@ func (e *exampleWidgetResource) Schema(ctx context.Context, req resource.SchemaR
 type exampleWidgetResourceData struct {
 	// ... other attributes ...
 
-	NewAttribute types.String `tfsdk:"new_attribute"`
+	ExistingAttribute types.String `tfsdk:"existing_attribute"`
 }
 
 func (e *exampleWidgetResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -48,7 +48,7 @@ func (e *exampleWidgetResource) Create(ctx context.Context, req resource.CreateR
 		return
 	}
 
-	// add NewAttribute to provider create API call
+	// add attribute to provider create API call
 
 	// ... other logic ...
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -66,7 +66,7 @@ func (e *exampleWidgetResource) Update(ctx context.Context, req resource.UpdateR
 		return
 	}
 
-	// add NewAttribute to provider create API call
+	// add attribute to provider update API call
 
 	// ... other logic ...
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
