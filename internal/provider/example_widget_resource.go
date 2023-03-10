@@ -55,13 +55,23 @@ func (e *exampleWidgetResource) Create(ctx context.Context, req resource.CreateR
 }
 
 func (e *exampleWidgetResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var data exampleWidgetResourceData
+
+	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	// ... other logic ...
+	data.ExistingAttribute = types.StringValue("some val")
+
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func (e *exampleWidgetResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var data exampleWidgetResourceData
 
-	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
