@@ -3,11 +3,8 @@ package provider
 import (
 	"context"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -30,17 +27,8 @@ func (e *exampleWidgetResource) Schema(ctx context.Context, req resource.SchemaR
 		Attributes: map[string]schema.Attribute{
 			// ... other attributes ...
 
-			"existing_attribute": schema.StringAttribute{
-				Optional:           true,
-				DeprecationMessage: "use new_attribute instead",
-			},
 			"new_attribute": schema.StringAttribute{
-				Optional: true,
-				Validators: []validator.String{
-					stringvalidator.ExactlyOneOf(path.Expressions{
-						path.MatchRoot("existing_attribute"),
-					}...),
-				},
+				Required: true,
 			},
 		},
 	}
@@ -49,8 +37,7 @@ func (e *exampleWidgetResource) Schema(ctx context.Context, req resource.SchemaR
 type exampleWidgetResourceData struct {
 	// ... other attributes ...
 
-	ExistingAttribute types.String `tfsdk:"existing_attribute"`
-	NewAttribute      types.String `tfsdk:"new_attribute"`
+	NewAttribute types.String `tfsdk:"new_attribute"`
 }
 
 func (e *exampleWidgetResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -61,11 +48,7 @@ func (e *exampleWidgetResource) Create(ctx context.Context, req resource.CreateR
 		return
 	}
 
-	if !data.NewAttribute.IsNull() {
-		// add NewAttribute to provider create API call
-	} else {
-		// add ExistingAttribute to provider create API call
-	}
+	// add NewAttribute to provider create API call
 
 	// ... other logic ...
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -83,11 +66,7 @@ func (e *exampleWidgetResource) Update(ctx context.Context, req resource.UpdateR
 		return
 	}
 
-	if !data.NewAttribute.IsNull() {
-		// add NewAttribute to provider create API call
-	} else {
-		// add ExistingAttribute to provider create API call
-	}
+	// add NewAttribute to provider create API call
 
 	// ... other logic ...
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
