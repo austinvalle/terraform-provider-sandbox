@@ -7,5 +7,5 @@ terraform {
 }
 
 resource "example_widget" "example" {
-
+  existing_attribute = "hello there!"
 }

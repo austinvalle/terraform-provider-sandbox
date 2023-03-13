@@ -27,8 +27,8 @@ func (e *exampleWidgetResource) Schema(ctx context.Context, req resource.SchemaR
 		Attributes: map[string]schema.Attribute{
 			// ... other attributes ...
 
-			"new_attribute": schema.StringAttribute{
-				Computed: true,
+			"existing_attribute": schema.StringAttribute{
+				Required: true,
 			},
 		},
 	}
@@ -37,7 +37,7 @@ func (e *exampleWidgetResource) Schema(ctx context.Context, req resource.SchemaR
 type exampleWidgetResourceData struct {
 	// ... other attributes ...
 
-	NewAttribute types.String `tfsdk:"new_attribute"`
+	ExistingAttribute types.String `tfsdk:"existing_attribute"`
 }
 
 func (e *exampleWidgetResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -48,37 +48,27 @@ func (e *exampleWidgetResource) Create(ctx context.Context, req resource.CreateR
 		return
 	}
 
-	// ... other logic ...
-	data.NewAttribute = types.StringValue("some val")
+	// add attribute to provider create API call
 
+	// ... other logic ...
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func (e *exampleWidgetResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data exampleWidgetResourceData
-
-	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
 	// ... other logic ...
-	data.NewAttribute = types.StringValue("some val")
-
-	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func (e *exampleWidgetResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var data exampleWidgetResourceData
 
-	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// ... other logic ...
-	data.NewAttribute = types.StringValue("some val")
+	// add attribute to provider update API call
 
+	// ... other logic ...
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
