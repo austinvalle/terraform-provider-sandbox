@@ -27,7 +27,7 @@ func (e *exampleWidgetResource) Schema(ctx context.Context, req resource.SchemaR
 		Attributes: map[string]schema.Attribute{
 			// ... other attributes ...
 
-			"existing_attribute": schema.StringAttribute{
+			"string_attribute": schema.StringAttribute{
 				Required: true,
 			},
 		},
@@ -37,7 +37,7 @@ func (e *exampleWidgetResource) Schema(ctx context.Context, req resource.SchemaR
 type exampleWidgetResourceData struct {
 	// ... other attributes ...
 
-	ExistingAttribute types.String `tfsdk:"existing_attribute"`
+	StringAttribute types.String `tfsdk:"string_attribute"`
 }
 
 func (e *exampleWidgetResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
