@@ -6,6 +6,6 @@ terraform {
   }
 }
 
-resource "example_existing_widget" "example" {
+resource "example_new_widget" "example" {
   string_attribute = "hello there!"
 }
