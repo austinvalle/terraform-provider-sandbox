@@ -285,5 +285,6 @@ func (p *exampleProvider) Resources(ctx context.Context) []func() resource.Resou
 	return []func() resource.Resource{
 		NewResource,
 		NewExistingWidgetResource,
+		NewWidgetResource,
 	}
 }
