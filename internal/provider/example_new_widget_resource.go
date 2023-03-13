@@ -17,7 +17,7 @@ func NewWidgetResource() resource.Resource {
 }
 
 func (e *exampleWidgetResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_widget"
+	resp.TypeName = req.ProviderTypeName + "_existing_widget"
 }
 
 func (e *exampleWidgetResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
