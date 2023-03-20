@@ -284,7 +284,5 @@ func (p *exampleProvider) DataSources(ctx context.Context) []func() datasource.D
 func (p *exampleProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		NewResource,
-		NewExistingWidgetResource,
-		NewWidgetResource,
 	}
 }

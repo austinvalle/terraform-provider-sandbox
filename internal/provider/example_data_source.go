@@ -77,7 +77,8 @@ func (e *exampleDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 			},
 
 			"string_attribute": schema.StringAttribute{
-				Optional: true,
+				Computed:  true,
+				Sensitive: true,
 			},
 
 			// Nested Attributes
@@ -152,7 +153,6 @@ func (e *exampleDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 				},
 			},
 		},
-
 
 		// Nested Blocks
 		Blocks: map[string]schema.Block{
@@ -281,6 +281,7 @@ func (e *exampleDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	}
 
 	data.Id = types.StringValue("example-id")
+	data.StringAttribute = types.StringValue("dont show me please!")
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
