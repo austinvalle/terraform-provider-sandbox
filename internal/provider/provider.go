@@ -276,13 +276,11 @@ func (p *exampleProvider) Metadata(ctx context.Context, req provider.MetadataReq
 }
 
 func (p *exampleProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
-	return []func() datasource.DataSource{
-		NewDataSource,
-	}
+	return []func() datasource.DataSource{}
 }
 
 func (p *exampleProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		NewResource,
+		NewExampleResource,
 	}
 }
