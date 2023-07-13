@@ -1,12 +1,31 @@
 terraform {
   required_providers {
-    example = {
+    examplecloud = {
       source = "austinvalle/sandbox"
     }
   }
 }
 
-resource "examplecloud_thing" "this" {}
+locals {
+  json_example = jsonencode(
+    {
+      hello   = "world",
+      num     = 2,
+      decimal = 2.2,
+      itdobe  = true,
+      obj = {
+        wewant = "some-more"
+      },
+      arr = [
+        {
+          ayo = "itsyaboi"
+        }
+      ]
+    }
+  )
+}
 
 
-data "examplecloud_thing" "this" {}
+resource "examplecloud_thing" "this" {
+  json_string = local.json_example
+}
