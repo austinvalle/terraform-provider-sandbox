@@ -6,4 +6,7 @@ terraform {
   }
 }
 
-resource "example_example" "this" {}
+resource "examplecloud_thing" "this" {}
+
+
+data "examplecloud_thing" "this" {}
