@@ -7,10 +7,11 @@ terraform {
 }
 
 locals {
+  # json_example = "abc"
   json_example = jsonencode(
     {
-      hello   = "world",
-      num     = 2,
+      hello   = "world-update",
+      num     = 3,
       decimal = 2.2,
       itdobe  = true,
       obj = {
@@ -18,7 +19,10 @@ locals {
       },
       arr = [
         {
-          ayo = "itsyaboi"
+          ayo = "itsyaboi-1"
+        },
+        {
+          ayo = "itsyaboi-2"
         }
       ]
     }
@@ -27,5 +31,7 @@ locals {
 
 
 resource "examplecloud_thing" "this" {
-  json_string = local.json_example
+  json_before           = local.json_example
+  json_exact_after      = local.json_example
+  json_normalized_after = local.json_example
 }
