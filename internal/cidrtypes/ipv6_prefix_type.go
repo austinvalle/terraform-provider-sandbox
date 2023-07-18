@@ -1,4 +1,4 @@
-package nettypes
+package cidrtypes
 
 import (
 	"context"
@@ -14,21 +14,21 @@ import (
 )
 
 var (
-	_ basetypes.StringTypable = (*IPv4AddressType)(nil)
-	_ xattr.TypeWithValidate  = (*IPv4AddressType)(nil)
+	_ basetypes.StringTypable = (*IPv6PrefixType)(nil)
+	_ xattr.TypeWithValidate  = (*IPv6PrefixType)(nil)
 )
 
 // TODO: docs.
-type IPv4AddressType struct {
+type IPv6PrefixType struct {
 	basetypes.StringType
 }
 
-func (t IPv4AddressType) String() string {
-	return "nettypes.IPv4AddressType"
+func (t IPv6PrefixType) String() string {
+	return "cidrtypes.IPv6PrefixType"
 }
 
-func (t IPv4AddressType) Equal(o attr.Type) bool {
-	other, ok := o.(IPv4AddressType)
+func (t IPv6PrefixType) Equal(o attr.Type) bool {
+	other, ok := o.(IPv6PrefixType)
 
 	if !ok {
 		return false
@@ -37,7 +37,7 @@ func (t IPv4AddressType) Equal(o attr.Type) bool {
 	return t.StringType.Equal(other.StringType)
 }
 
-func (t IPv4AddressType) Validate(ctx context.Context, value tftypes.Value, valuePath path.Path) diag.Diagnostics {
+func (t IPv6PrefixType) Validate(ctx context.Context, value tftypes.Value, valuePath path.Path) diag.Diagnostics {
 	if value.IsNull() || !value.IsKnown() {
 		return nil
 	}
@@ -59,13 +59,13 @@ func (t IPv4AddressType) Validate(ctx context.Context, value tftypes.Value, valu
 		return diags
 	}
 
-	ipAddr, err := netip.ParseAddr(valueString)
+	ipPrefix, err := netip.ParsePrefix(valueString)
 	if err != nil {
-		// TODO: error message clean-up, mention net/netip implementation? leading zeroes? RFC?
+		// TODO: error message clean-up
 		diags.AddAttributeError(
 			valuePath,
-			"Invalid IPv4 Address String Value",
-			"A string value was provided that is not valid IPv4 string format.\n\n"+
+			"Invalid IPv6 CIDR String Value",
+			"A string value was provided that is not valid IPv6 CIDR string format (RFC 4291).\n\n"+
 				"Path: "+valuePath.String()+"\n"+
 				"Given Value: "+valueString+"\n"+
 				"Error: "+err.Error(),
@@ -74,12 +74,13 @@ func (t IPv4AddressType) Validate(ctx context.Context, value tftypes.Value, valu
 		return diags
 	}
 
-	if ipAddr.Is6() {
+	// TODO: is this correct way to determine IPv4 CIDR?
+	if ipPrefix.Addr().Is4() {
 		// TODO: error message clean-up
 		diags.AddAttributeError(
 			valuePath,
-			"Invalid IPv4 Address String Value",
-			"An IPv6 string format was provided, string value must be IPv4 string format.\n\n"+
+			"Invalid IPv6 CIDR String Value",
+			"An IPv4 CIDR string format was provided, string value must be IPv6 CIDR string format (RFC 4291).\n\n"+
 				"Path: "+valuePath.String()+"\n"+
 				"Given Value: "+valueString+"\n",
 		)
@@ -87,12 +88,13 @@ func (t IPv4AddressType) Validate(ctx context.Context, value tftypes.Value, valu
 		return diags
 	}
 
-	if !ipAddr.IsValid() || !ipAddr.Is4() {
-		// TODO: error message clean-up, mention net/netip implementation? leading zeroes? RFC? Special message for IPv6?
+	// TODO: is this correct way to determine IPv6 CIDR?
+	if !ipPrefix.IsValid() || !ipPrefix.Addr().Is6() {
+		// TODO: error message clean-up
 		diags.AddAttributeError(
 			valuePath,
-			"Invalid IPv4 Address String Value",
-			"A string value was provided that is not valid IPv4 string format.\n\n"+
+			"Invalid IPv6 CIDR String Value",
+			"A string value was provided that is not valid IPv6 CIDR string format (RFC 4291).\n\n"+
 				"Path: "+valuePath.String()+"\n"+
 				"Given Value: "+valueString+"\n",
 		)
@@ -103,13 +105,13 @@ func (t IPv4AddressType) Validate(ctx context.Context, value tftypes.Value, valu
 	return diags
 }
 
-func (t IPv4AddressType) ValueFromString(ctx context.Context, in basetypes.StringValue) (basetypes.StringValuable, diag.Diagnostics) {
-	return IPv4Address{
+func (t IPv6PrefixType) ValueFromString(ctx context.Context, in basetypes.StringValue) (basetypes.StringValuable, diag.Diagnostics) {
+	return IPv6Prefix{
 		StringValue: in,
 	}, nil
 }
 
-func (t IPv4AddressType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+func (t IPv6PrefixType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
 	attrValue, err := t.StringType.ValueFromTerraform(ctx, in)
 
 	if err != nil {
@@ -131,6 +133,6 @@ func (t IPv4AddressType) ValueFromTerraform(ctx context.Context, in tftypes.Valu
 	return stringValuable, nil
 }
 
-func (t IPv4AddressType) ValueType(ctx context.Context) attr.Value {
-	return IPv4Address{}
+func (t IPv6PrefixType) ValueType(ctx context.Context) attr.Value {
+	return IPv6Prefix{}
 }
