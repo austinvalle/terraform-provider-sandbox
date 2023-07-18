@@ -26,11 +26,14 @@ type thingResourceModel struct {
 	JsonNormalized jsontypes.Normalized `tfsdk:"json_normalized"`
 
 	// nettypes
-	IPv4AddressBefore types.String `tfsdk:"ipv4_address_before"`
-	IPv6AddressBefore types.String `tfsdk:"ipv6_address_before"`
+	IPv4AddressBefore types.String         `tfsdk:"ipv4_address_before"`
+	IPv6AddressBefore types.String         `tfsdk:"ipv6_address_before"`
+	IPv4Address       nettypes.IPv4Address `tfsdk:"ipv4_address"`
+	IPv6Address       nettypes.IPv6Address `tfsdk:"ipv6_address"`
 
-	IPv4Address nettypes.IPv4Address `tfsdk:"ipv4_address"`
-	IPv6Address nettypes.IPv6Address `tfsdk:"ipv6_address"`
+	// cidrtypes
+	IPv4CidrBefore types.String `tfsdk:"ipv4_cidr_before"`
+	IPv6CidrBefore types.String `tfsdk:"ipv6_cidr_before"`
 }
 
 func (r *thingResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -74,6 +77,16 @@ func (r *thingResource) Schema(ctx context.Context, req resource.SchemaRequest, 
 				CustomType: nettypes.IPv6AddressType{},
 				Optional:   true,
 				Computed:   true,
+			},
+
+			// cidrtypes
+			"ipv4_cidr_before": schema.StringAttribute{
+				Optional: true,
+				Computed: true,
+			},
+			"ipv6_cidr_before": schema.StringAttribute{
+				Optional: true,
+				Computed: true,
 			},
 		},
 	}
