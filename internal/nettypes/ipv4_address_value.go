@@ -14,7 +14,7 @@ var (
 	_ basetypes.StringValuable = (*IPv4Address)(nil)
 )
 
-// TODO: docs.
+// TODO: docs. MENTION LEADING ZEROES are not allowed :) .
 type IPv4Address struct {
 	basetypes.StringValue
 }
