@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 
 	"github.com/austinvalle/terraform-provider-sandbox/internal/jsontypes"
+	"github.com/austinvalle/terraform-provider-sandbox/internal/nettypes"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -20,13 +21,16 @@ type thingResource struct{}
 
 type thingResourceModel struct {
 	// jsontypes
-	JsonBefore          types.String         `tfsdk:"json_before"`
-	JsonExactAfter      jsontypes.Exact      `tfsdk:"json_exact_after"`
-	JsonNormalizedAfter jsontypes.Normalized `tfsdk:"json_normalized_after"`
+	JsonBefore     types.String         `tfsdk:"json_before"`
+	JsonExact      jsontypes.Exact      `tfsdk:"json_exact"`
+	JsonNormalized jsontypes.Normalized `tfsdk:"json_normalized"`
 
 	// nettypes
 	IPv4AddressBefore types.String `tfsdk:"ipv4_address_before"`
 	IPv6AddressBefore types.String `tfsdk:"ipv6_address_before"`
+
+	IPv4Address nettypes.IPv4Address `tfsdk:"ipv4_address"`
+	IPv6Address nettypes.IPv6Address `tfsdk:"ipv6_address"`
 }
 
 func (r *thingResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -41,12 +45,12 @@ func (r *thingResource) Schema(ctx context.Context, req resource.SchemaRequest, 
 				Optional: true,
 				Computed: true,
 			},
-			"json_exact_after": schema.StringAttribute{
+			"json_exact": schema.StringAttribute{
 				CustomType: jsontypes.ExactType{},
 				Optional:   true,
 				Computed:   true,
 			},
-			"json_normalized_after": schema.StringAttribute{
+			"json_normalized": schema.StringAttribute{
 				CustomType: jsontypes.NormalizedType{},
 				Optional:   true,
 				Computed:   true,
@@ -60,6 +64,16 @@ func (r *thingResource) Schema(ctx context.Context, req resource.SchemaRequest, 
 			"ipv6_address_before": schema.StringAttribute{
 				Optional: true,
 				Computed: true,
+			},
+			"ipv4_address": schema.StringAttribute{
+				CustomType: nettypes.IPv4AddressType{},
+				Optional:   true,
+				Computed:   true,
+			},
+			"ipv6_address": schema.StringAttribute{
+				CustomType: nettypes.IPv6AddressType{},
+				Optional:   true,
+				Computed:   true,
 			},
 		},
 	}
@@ -112,12 +126,12 @@ func (r *thingResource) Update(ctx context.Context, req resource.UpdateRequest, 
 		return
 	}
 
-	var something Example
+	// Normalized simulation of JSON
+	var obj Example
 	//nolint
-	json.Unmarshal([]byte(data.JsonNormalizedAfter.ValueString()), &something)
-	reset, _ := json.Marshal(something)
-
-	data.JsonNormalizedAfter = jsontypes.NewNormalizedValue(string(reset))
+	json.Unmarshal([]byte(data.JsonNormalized.ValueString()), &obj)
+	normalizedJSON, _ := json.Marshal(obj)
+	data.JsonNormalized = jsontypes.NewNormalizedValue(string(normalizedJSON))
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }

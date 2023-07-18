@@ -34,10 +34,13 @@ locals {
 
 
 resource "examplecloud_thing" "this" {
-  json_before           = local.json_example
-  json_exact_after      = local.json_example
-  json_normalized_after = local.json_example
+  json_before     = local.json_example
+  json_exact      = local.json_example
+  json_normalized = local.json_example
 
   ipv4_address_before = local.ipv4_example
   ipv6_address_before = local.ipv6_example
+
+  ipv4_address = local.ipv4_example
+  ipv6_address = local.ipv6_example
 }
