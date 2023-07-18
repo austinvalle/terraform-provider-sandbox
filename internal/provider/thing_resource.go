@@ -19,9 +19,14 @@ func NewThingResource() resource.Resource {
 type thingResource struct{}
 
 type thingResourceModel struct {
-	Before          types.String         `tfsdk:"json_before"`
-	ExactAfter      jsontypes.Exact      `tfsdk:"json_exact_after"`
-	NormalizedAfter jsontypes.Normalized `tfsdk:"json_normalized_after"`
+	// jsontypes
+	JsonBefore          types.String         `tfsdk:"json_before"`
+	JsonExactAfter      jsontypes.Exact      `tfsdk:"json_exact_after"`
+	JsonNormalizedAfter jsontypes.Normalized `tfsdk:"json_normalized_after"`
+
+	// nettypes
+	IPv4AddressBefore types.String `tfsdk:"ipv4_address_before"`
+	IPv6AddressBefore types.String `tfsdk:"ipv6_address_before"`
 }
 
 func (r *thingResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -31,6 +36,7 @@ func (r *thingResource) Metadata(ctx context.Context, req resource.MetadataReque
 func (r *thingResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
+			// jsontypes
 			"json_before": schema.StringAttribute{
 				Optional: true,
 				Computed: true,
@@ -44,6 +50,16 @@ func (r *thingResource) Schema(ctx context.Context, req resource.SchemaRequest, 
 				CustomType: jsontypes.NormalizedType{},
 				Optional:   true,
 				Computed:   true,
+			},
+
+			// nettypes
+			"ipv4_address_before": schema.StringAttribute{
+				Optional: true,
+				Computed: true,
+			},
+			"ipv6_address_before": schema.StringAttribute{
+				Optional: true,
+				Computed: true,
 			},
 		},
 	}
@@ -98,10 +114,10 @@ func (r *thingResource) Update(ctx context.Context, req resource.UpdateRequest, 
 
 	var something Example
 	//nolint
-	json.Unmarshal([]byte(data.NormalizedAfter.ValueString()), &something)
+	json.Unmarshal([]byte(data.JsonNormalizedAfter.ValueString()), &something)
 	reset, _ := json.Marshal(something)
 
-	data.NormalizedAfter = jsontypes.NewNormalizedValue(string(reset))
+	data.JsonNormalizedAfter = jsontypes.NewNormalizedValue(string(reset))
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }

@@ -27,6 +27,9 @@ locals {
       ]
     }
   )
+
+  ipv4_example = "192.0.1.246"
+  ipv6_example = "2002:db8::8a3f:362:7897"
 }
 
 
@@ -34,4 +37,7 @@ resource "examplecloud_thing" "this" {
   json_before           = local.json_example
   json_exact_after      = local.json_example
   json_normalized_after = local.json_example
+
+  ipv4_address_before = local.ipv4_example
+  ipv6_address_before = local.ipv6_example
 }
