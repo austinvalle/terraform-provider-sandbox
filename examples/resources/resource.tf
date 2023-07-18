@@ -29,7 +29,14 @@ locals {
   )
 
   ipv4_example = "192.0.1.246"
-  ipv6_example = "2002:db8::8a3f:362:7897"
+  # ipv6_example = "1080:0:0:0:8:800:200C:417A"
+  # ipv6_example = "0:0:0:0:0:0:0:0"
+  # ipv6_example = "0:0:0:0:0:0:0:1"
+
+  # IPv4-compatible addresses
+  # ipv6_example = "0:0:0:0:0:0:13.1.68.3"
+  # IPv4-mapped addresses
+  ipv6_example = "0:0:0:0:0:FFFF:129.144.52.38"
 }
 
 

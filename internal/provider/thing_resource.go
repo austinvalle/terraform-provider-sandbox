@@ -101,23 +101,6 @@ func (r *thingResource) Read(ctx context.Context, req resource.ReadRequest, resp
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-type Example struct {
-	Hello   string  `json:"hello"`
-	Num     int64   `json:"num"`
-	Decimal float64 `json:"decimal"`
-	Itdobe  bool    `json:"itdobe"`
-	Obj     Obj     `json:"obj"`
-	Arr     []Arr   `json:"arr"`
-}
-
-type Arr struct {
-	Ayo string `json:"ayo"`
-}
-
-type Obj struct {
-	Wewant string `json:"wewant"`
-}
-
 func (r *thingResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var data thingResourceModel
 
@@ -126,12 +109,21 @@ func (r *thingResource) Update(ctx context.Context, req resource.UpdateRequest, 
 		return
 	}
 
-	// Normalized simulation of JSON
-	var obj Example
+	// Normalized simulation of JSON by re-ordering JSON
+	var obj any
 	//nolint
 	json.Unmarshal([]byte(data.JsonNormalized.ValueString()), &obj)
 	normalizedJSON, _ := json.Marshal(obj)
 	data.JsonNormalized = jsontypes.NewNormalizedValue(string(normalizedJSON))
+
+	// Normalized simulation of IPv6 by shorthanding
+	if data.IPv6Address.ValueString() == "0:0:0:0:0:0:0:0" {
+		data.IPv6Address = nettypes.NewIPv6AddressValue("::")
+	} else if data.IPv6Address.ValueString() == "0:0:0:0:0:0:0:1" {
+		data.IPv6Address = nettypes.NewIPv6AddressValue("::1")
+	} else if data.IPv6Address.ValueString() == "0:0:0:0:0:FFFF:129.144.52.38" {
+		data.IPv6Address = nettypes.NewIPv6AddressValue("::FFFF:129.144.52.38")
+	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }

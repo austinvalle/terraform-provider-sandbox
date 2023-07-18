@@ -18,7 +18,9 @@ var (
 	_ xattr.TypeWithValidate  = (*IPv6AddressType)(nil)
 )
 
-// TODO: docs.
+// TODO: docs. Also supports:
+// -  IPv4 compatible addresses like ::13.1.68.3
+// -  IPv4 mapped addresses like ::FFFF:129.144.52.38 .
 type IPv6AddressType struct {
 	basetypes.StringType
 }
