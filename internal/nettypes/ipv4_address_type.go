@@ -74,6 +74,19 @@ func (t IPv4AddressType) Validate(ctx context.Context, value tftypes.Value, valu
 		return diags
 	}
 
+	if ipAddr.Is6() {
+		// TODO: error message clean-up
+		diags.AddAttributeError(
+			valuePath,
+			"Invalid IPv6 Address String Value",
+			"An IPv6 string format was provided, string value must be IPv4 string format.\n\n"+
+				"Path: "+valuePath.String()+"\n"+
+				"Given Value: "+valueString+"\n",
+		)
+
+		return diags
+	}
+
 	if !ipAddr.IsValid() || !ipAddr.Is4() {
 		// TODO: error message clean-up, mention net/netip implementation? leading zeroes? RFC? Special message for IPv6?
 		diags.AddAttributeError(

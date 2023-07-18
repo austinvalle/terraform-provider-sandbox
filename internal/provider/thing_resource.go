@@ -109,14 +109,14 @@ func (r *thingResource) Update(ctx context.Context, req resource.UpdateRequest, 
 		return
 	}
 
-	// Normalized simulation of JSON by re-ordering JSON
+	// Simulate normalizing JSON by re-ordering properties
 	var obj any
 	//nolint
 	json.Unmarshal([]byte(data.JsonNormalized.ValueString()), &obj)
 	normalizedJSON, _ := json.Marshal(obj)
 	data.JsonNormalized = jsontypes.NewNormalizedValue(string(normalizedJSON))
 
-	// Normalized simulation of IPv6 by shorthanding
+	// Simulate normalizing IPv6 by shorthanding
 	if data.IPv6Address.ValueString() == "0:0:0:0:0:0:0:0" {
 		data.IPv6Address = nettypes.NewIPv6AddressValue("::")
 	} else if data.IPv6Address.ValueString() == "0:0:0:0:0:0:0:1" {

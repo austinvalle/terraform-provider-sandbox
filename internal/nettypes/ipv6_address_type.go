@@ -63,11 +63,11 @@ func (t IPv6AddressType) Validate(ctx context.Context, value tftypes.Value, valu
 
 	ipAddr, err := netip.ParseAddr(valueString)
 	if err != nil {
-		// TODO: error message clean-up, mention net/netip implementation? leading zeroes? RFC?
+		// TODO: error message clean-up
 		diags.AddAttributeError(
 			valuePath,
 			"Invalid IPv6 Address String Value",
-			"A string value was provided that is not valid IPv6 string format.\n\n"+
+			"A string value was provided that is not valid IPv6 string format (RFC 4291).\n\n"+
 				"Path: "+valuePath.String()+"\n"+
 				"Given Value: "+valueString+"\n"+
 				"Error: "+err.Error(),
@@ -76,12 +76,12 @@ func (t IPv6AddressType) Validate(ctx context.Context, value tftypes.Value, valu
 		return diags
 	}
 
-	if !ipAddr.IsValid() || !ipAddr.Is6() {
-		// TODO: error message clean-up, mention net/netip implementation? leading zeroes? RFC? Special message for IPv6?
+	if ipAddr.Is4() {
+		// TODO: error message clean-up
 		diags.AddAttributeError(
 			valuePath,
 			"Invalid IPv6 Address String Value",
-			"A string value was provided that is not valid IPv6 string format.\n\n"+
+			"An IPv4 string format was provided, string value must be IPv6 string format or IPv4-Mapped IPv6 string format (RFC 4291).\n\n"+
 				"Path: "+valuePath.String()+"\n"+
 				"Given Value: "+valueString+"\n",
 		)
@@ -89,7 +89,18 @@ func (t IPv6AddressType) Validate(ctx context.Context, value tftypes.Value, valu
 		return diags
 	}
 
-	// TODO: validate IPv6 address
+	if !ipAddr.IsValid() || !ipAddr.Is6() {
+		// TODO: error message clean-up
+		diags.AddAttributeError(
+			valuePath,
+			"Invalid IPv6 Address String Value",
+			"A string value was provided that is not valid IPv6 string format (RFC 4291).\n\n"+
+				"Path: "+valuePath.String()+"\n"+
+				"Given Value: "+valueString+"\n",
+		)
+
+		return diags
+	}
 
 	return diags
 }
