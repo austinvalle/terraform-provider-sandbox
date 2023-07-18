@@ -29,7 +29,6 @@ locals {
   )
 
   ipv4_example = "192.0.1.246"
-  # ipv6_example = "1080:0:0:0:8:800:200C:417A"
   # ipv6_example = "0:0:0:0:0:0:0:0"
   # ipv6_example = "0:0:0:0:0:0:0:1"
 
@@ -41,7 +40,9 @@ locals {
 
 
   ipv4_cidr = "174.16.0.0/24"
-  ipv6_cidr = "2001:db8::/117"
+
+  # ipv6_cidr = "2001:db8:0:0:0:0:0:0/117"
+  ipv6_cidr = "2001:db8::/115"
 }
 
 
@@ -57,4 +58,7 @@ resource "examplecloud_thing" "this" {
 
   ipv4_cidr_before = local.ipv4_cidr
   ipv6_cidr_before = local.ipv6_cidr
+
+  ipv4_cidr = local.ipv4_cidr
+  ipv6_cidr = local.ipv6_cidr
 }

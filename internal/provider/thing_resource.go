@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/austinvalle/terraform-provider-sandbox/internal/cidrtypes"
 	"github.com/austinvalle/terraform-provider-sandbox/internal/jsontypes"
 	"github.com/austinvalle/terraform-provider-sandbox/internal/nettypes"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -32,8 +33,10 @@ type thingResourceModel struct {
 	IPv6Address       nettypes.IPv6Address `tfsdk:"ipv6_address"`
 
 	// cidrtypes
-	IPv4CidrBefore types.String `tfsdk:"ipv4_cidr_before"`
-	IPv6CidrBefore types.String `tfsdk:"ipv6_cidr_before"`
+	IPv4CidrBefore types.String         `tfsdk:"ipv4_cidr_before"`
+	IPv6CidrBefore types.String         `tfsdk:"ipv6_cidr_before"`
+	IPv4Cidr       cidrtypes.IPv4Prefix `tfsdk:"ipv4_cidr"`
+	IPv6Cidr       cidrtypes.IPv6Prefix `tfsdk:"ipv6_cidr"`
 }
 
 func (r *thingResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -88,6 +91,16 @@ func (r *thingResource) Schema(ctx context.Context, req resource.SchemaRequest, 
 				Optional: true,
 				Computed: true,
 			},
+			"ipv4_cidr": schema.StringAttribute{
+				CustomType: cidrtypes.IPv4PrefixType{},
+				Optional:   true,
+				Computed:   true,
+			},
+			"ipv6_cidr": schema.StringAttribute{
+				CustomType: cidrtypes.IPv6PrefixType{},
+				Optional:   true,
+				Computed:   true,
+			},
 		},
 	}
 }
@@ -129,13 +142,20 @@ func (r *thingResource) Update(ctx context.Context, req resource.UpdateRequest, 
 	normalizedJSON, _ := json.Marshal(obj)
 	data.JsonNormalized = jsontypes.NewNormalizedValue(string(normalizedJSON))
 
-	// Simulate normalizing IPv6 by shorthanding
+	// Simulate normalizing IPv6 by shorthanding/expanding
 	if data.IPv6Address.ValueString() == "0:0:0:0:0:0:0:0" {
 		data.IPv6Address = nettypes.NewIPv6AddressValue("::")
-	} else if data.IPv6Address.ValueString() == "0:0:0:0:0:0:0:1" {
-		data.IPv6Address = nettypes.NewIPv6AddressValue("::1")
+	} else if data.IPv6Address.ValueString() == "::1" {
+		data.IPv6Address = nettypes.NewIPv6AddressValue("0:0:0:0:0:0:0:1")
 	} else if data.IPv6Address.ValueString() == "0:0:0:0:0:FFFF:129.144.52.38" {
 		data.IPv6Address = nettypes.NewIPv6AddressValue("::FFFF:129.144.52.38")
+	}
+
+	// Simulate normalizing IPv6 CIDR by shorthanding/expanding
+	if data.IPv6Cidr.ValueString() == "2001:db8:0:0:0:0:0:0/117" {
+		data.IPv6Cidr = cidrtypes.NewIPv6PrefixValue("2001:db8::/117")
+	} else if data.IPv6Cidr.ValueString() == "2001:db8::/115" {
+		data.IPv6Cidr = cidrtypes.NewIPv6PrefixValue("2001:db8:0:0:0:0:0:0/115")
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
