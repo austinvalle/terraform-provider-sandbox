@@ -23,6 +23,10 @@ type ExactType struct {
 	basetypes.StringType
 }
 
+func (t ExactType) ValueType(ctx context.Context) attr.Value {
+	return Exact{}
+}
+
 func (t ExactType) String() string {
 	return "jsontypes.ExactType"
 }
@@ -101,8 +105,4 @@ func (t ExactType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (at
 	}
 
 	return stringValuable, nil
-}
-
-func (t ExactType) ValueType(ctx context.Context) attr.Value {
-	return Exact{}
 }

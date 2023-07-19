@@ -23,6 +23,10 @@ type IPv4AddressType struct {
 	basetypes.StringType
 }
 
+func (t IPv4AddressType) ValueType(ctx context.Context) attr.Value {
+	return IPv4Address{}
+}
+
 func (t IPv4AddressType) String() string {
 	return "nettypes.IPv4AddressType"
 }
@@ -129,8 +133,4 @@ func (t IPv4AddressType) ValueFromTerraform(ctx context.Context, in tftypes.Valu
 	}
 
 	return stringValuable, nil
-}
-
-func (t IPv4AddressType) ValueType(ctx context.Context) attr.Value {
-	return IPv4Address{}
 }

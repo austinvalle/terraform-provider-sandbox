@@ -23,6 +23,10 @@ type NormalizedType struct {
 	basetypes.StringType
 }
 
+func (t NormalizedType) ValueType(ctx context.Context) attr.Value {
+	return Normalized{}
+}
+
 func (t NormalizedType) String() string {
 	return "jsontypes.NormalizedType"
 }
@@ -101,8 +105,4 @@ func (t NormalizedType) ValueFromTerraform(ctx context.Context, in tftypes.Value
 	}
 
 	return stringValuable, nil
-}
-
-func (t NormalizedType) ValueType(ctx context.Context) attr.Value {
-	return Normalized{}
 }

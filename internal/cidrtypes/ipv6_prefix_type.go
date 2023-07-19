@@ -23,6 +23,10 @@ type IPv6PrefixType struct {
 	basetypes.StringType
 }
 
+func (t IPv6PrefixType) ValueType(ctx context.Context) attr.Value {
+	return IPv6Prefix{}
+}
+
 func (t IPv6PrefixType) String() string {
 	return "cidrtypes.IPv6PrefixType"
 }
@@ -131,8 +135,4 @@ func (t IPv6PrefixType) ValueFromTerraform(ctx context.Context, in tftypes.Value
 	}
 
 	return stringValuable, nil
-}
-
-func (t IPv6PrefixType) ValueType(ctx context.Context) attr.Value {
-	return IPv6Prefix{}
 }

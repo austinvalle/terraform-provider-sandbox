@@ -25,6 +25,10 @@ type IPv6AddressType struct {
 	basetypes.StringType
 }
 
+func (t IPv6AddressType) ValueType(ctx context.Context) attr.Value {
+	return IPv6Address{}
+}
+
 func (t IPv6AddressType) String() string {
 	return "nettypes.IPv6AddressType"
 }
@@ -131,8 +135,4 @@ func (t IPv6AddressType) ValueFromTerraform(ctx context.Context, in tftypes.Valu
 	}
 
 	return stringValuable, nil
-}
-
-func (t IPv6AddressType) ValueType(ctx context.Context) attr.Value {
-	return IPv6Address{}
 }

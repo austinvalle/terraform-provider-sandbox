@@ -23,6 +23,10 @@ type IPv4PrefixType struct {
 	basetypes.StringType
 }
 
+func (t IPv4PrefixType) ValueType(ctx context.Context) attr.Value {
+	return IPv4Prefix{}
+}
+
 func (t IPv4PrefixType) String() string {
 	return "cidrtypes.IPv4PrefixType"
 }
@@ -131,8 +135,4 @@ func (t IPv4PrefixType) ValueFromTerraform(ctx context.Context, in tftypes.Value
 	}
 
 	return stringValuable, nil
-}
-
-func (t IPv4PrefixType) ValueType(ctx context.Context) attr.Value {
-	return IPv4Prefix{}
 }
