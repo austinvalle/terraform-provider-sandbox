@@ -54,12 +54,9 @@ func (t IPv6AddressType) Validate(ctx context.Context, value tftypes.Value, valu
 	if err := value.As(&valueString); err != nil {
 		diags.AddAttributeError(
 			valuePath,
-			"Invalid Terraform Value",
-			"An unexpected error occurred while attempting to convert a Terraform value to a string. "+
-				"This generally is an issue with the provider schema implementation. "+
-				"Please contact the provider developers.\n\n"+
-				"Path: "+valuePath.String()+"\n"+
-				"Error: "+err.Error(),
+			"IPv6 Address Type Validation Error",
+			"An unexpected error was encountered trying to validate an attribute value. This is always an error in the provider. "+
+				"Please report the following to the provider developer:\n\n"+err.Error(),
 		)
 
 		return diags
