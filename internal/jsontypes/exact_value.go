@@ -25,7 +25,7 @@ func (v Exact) Type(_ context.Context) attr.Type {
 	return ExactType{}
 }
 
-// Equal returns true if the Value has the same type and value as the provided argument.
+// Equal returns true if the given value is equivalent.
 func (v Exact) Equal(o attr.Value) bool {
 	other, ok := o.(Exact)
 

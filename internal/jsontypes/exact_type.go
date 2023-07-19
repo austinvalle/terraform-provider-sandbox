@@ -18,19 +18,24 @@ var (
 	_ xattr.TypeWithValidate  = (*ExactType)(nil)
 )
 
-// TODO: docs.
+// ExactType is an attribute type that represents a valid JSON string (RFC 7159). No semantic equality logic is defined for ExactType,
+// so it will follow Terraform's data-consistency rules for strings, which must match byte-for-byte. Consider using NormalizedType
+// to allow inconsequential differences between JSON strings (whitespace, ordering, etc).
 type ExactType struct {
 	basetypes.StringType
 }
 
-func (t ExactType) ValueType(ctx context.Context) attr.Value {
-	return Exact{}
-}
-
+// String returns a human readable string of the type name.
 func (t ExactType) String() string {
 	return "jsontypes.ExactType"
 }
 
+// ValueType returns the Value type.
+func (t ExactType) ValueType(ctx context.Context) attr.Value {
+	return Exact{}
+}
+
+// Equal returns true if the given type is equivalent.
 func (t ExactType) Equal(o attr.Type) bool {
 	other, ok := o.(ExactType)
 
@@ -41,17 +46,34 @@ func (t ExactType) Equal(o attr.Type) bool {
 	return t.StringType.Equal(other.StringType)
 }
 
-func (t ExactType) Validate(ctx context.Context, value tftypes.Value, valuePath path.Path) diag.Diagnostics {
-	if value.IsNull() || !value.IsKnown() {
-		return nil
+// Validate implements type validation. This type requires the value provided to be a String value that is valid JSON format (RFC 7159).
+func (t ExactType) Validate(ctx context.Context, in tftypes.Value, path path.Path) diag.Diagnostics {
+	var diags diag.Diagnostics
+
+	if in.Type() == nil {
+		return diags
 	}
 
-	var diags diag.Diagnostics
+	if !in.Type().Is(tftypes.String) {
+		err := fmt.Errorf("expected String value, received %T with value: %v", in, in)
+		diags.AddAttributeError(
+			path,
+			"JSON Exact Type Validation Error",
+			"An unexpected error was encountered trying to validate an attribute value. This is always an error in the provider. "+
+				"Please report the following to the provider developer:\n\n"+err.Error(),
+		)
+		return diags
+	}
+
+	if !in.IsKnown() || in.IsNull() {
+		return diags
+	}
+
 	var valueString string
 
-	if err := value.As(&valueString); err != nil {
+	if err := in.As(&valueString); err != nil {
 		diags.AddAttributeError(
-			valuePath,
+			path,
 			"JSON Exact Type Validation Error",
 			"An unexpected error was encountered trying to validate an attribute value. This is always an error in the provider. "+
 				"Please report the following to the provider developer:\n\n"+err.Error(),
@@ -61,12 +83,10 @@ func (t ExactType) Validate(ctx context.Context, value tftypes.Value, valuePath 
 	}
 
 	if ok := json.Valid([]byte(valueString)); !ok {
-		// TODO: error message clean-up
 		diags.AddAttributeError(
-			valuePath,
+			path,
 			"Invalid JSON String Value",
 			"A string value was provided that is not valid JSON string format (RFC 7159).\n\n"+
-				"Path: "+valuePath.String()+"\n"+
 				"Given Value: "+valueString+"\n",
 		)
 
@@ -76,27 +96,27 @@ func (t ExactType) Validate(ctx context.Context, value tftypes.Value, valuePath 
 	return diags
 }
 
+// ValueFromString returns a StringValuable type given a StringValue.
 func (t ExactType) ValueFromString(ctx context.Context, in basetypes.StringValue) (basetypes.StringValuable, diag.Diagnostics) {
 	return Exact{
 		StringValue: in,
 	}, nil
 }
 
+// ValueFromTerraform returns a Value given a tftypes.Value.  This is meant to convert the tftypes.Value into a more convenient Go type
+// for the provider to consume the data with.
 func (t ExactType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
 	attrValue, err := t.StringType.ValueFromTerraform(ctx, in)
-
 	if err != nil {
 		return nil, err
 	}
 
 	stringValue, ok := attrValue.(basetypes.StringValue)
-
 	if !ok {
 		return nil, fmt.Errorf("unexpected value type of %T", attrValue)
 	}
 
 	stringValuable, diags := t.ValueFromString(ctx, stringValue)
-
 	if diags.HasError() {
 		return nil, fmt.Errorf("unexpected error converting StringValue to StringValuable: %v", diags)
 	}
