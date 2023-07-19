@@ -20,7 +20,7 @@ var (
 
 // ExactType is an attribute type that represents a valid JSON string (RFC 7159). No semantic equality logic is defined for ExactType,
 // so it will follow Terraform's data-consistency rules for strings, which must match byte-for-byte. Consider using NormalizedType
-// to allow inconsequential differences between JSON strings (whitespace, ordering, etc).
+// to allow inconsequential differences between JSON strings (whitespace, property order, etc).
 type ExactType struct {
 	basetypes.StringType
 }

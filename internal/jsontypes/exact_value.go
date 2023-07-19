@@ -15,7 +15,7 @@ var (
 
 // Exact represents a valid JSON string (RFC 7159). No semantic equality logic is defined for Exact,
 // so it will follow Terraform's data-consistency rules for strings, which must match byte-for-byte.
-// Consider using Normalized to allow inconsequential differences between JSON strings (whitespace, ordering, etc).
+// Consider using Normalized to allow inconsequential differences between JSON strings (whitespace, property order, etc).
 type Exact struct {
 	basetypes.StringValue
 }

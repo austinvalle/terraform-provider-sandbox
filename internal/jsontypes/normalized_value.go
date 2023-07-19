@@ -16,15 +16,19 @@ var (
 	_ basetypes.StringValuableWithSemanticEquals = (*Normalized)(nil)
 )
 
-// TODO: docs.
+// Normalized represents a valid JSON string (RFC 7159). Semantic equality logic is defined for Normalized
+// such that inconsequential differences between JSON strings are ignored (whitespace, property order, etc). If you
+// need strict, byte-for-byte, string equality, consider using ExactType.
 type Normalized struct {
 	basetypes.StringValue
 }
 
+// Type returns a NormalizedType.
 func (v Normalized) Type(_ context.Context) attr.Type {
 	return NormalizedType{}
 }
 
+// Equal returns true if the given value is equivalent.
 func (v Normalized) Equal(o attr.Value) bool {
 	other, ok := o.(Normalized)
 
@@ -35,6 +39,9 @@ func (v Normalized) Equal(o attr.Value) bool {
 	return v.StringValue.Equal(other.StringValue)
 }
 
+// StringSemanticEquals returns true if the given JSON string value is semantically equal to the current JSON string value. When compared,
+// these JSON string values are "normalized" by marshalling them to empty Go structs. This prevents Terraform data consistency errors and
+// resource drift due to inconsequential differences in the JSON strings (whitespace, property order, etc).
 func (v Normalized) StringSemanticEquals(_ context.Context, newValuable basetypes.StringValuable) (bool, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
@@ -78,24 +85,51 @@ func jsonEqual(s1, s2 string) (bool, error) {
 	return reflect.DeepEqual(j1, j2), nil
 }
 
+// Unmarshal calls (encoding/json).Unmarshal with the Normalized StringValue and `target` input. A null or unknown value will produce an error diagnostic.
+// See encoding/json docs for more on usage: https://pkg.go.dev/encoding/json#Unmarshal
+func (v Normalized) Unmarshal(target any) diag.Diagnostics {
+	var diags diag.Diagnostics
+
+	if v.IsNull() {
+		diags.Append(diag.NewErrorDiagnostic("Normalized JSON Unmarshal Error", "json string value is null"))
+		return diags
+	}
+
+	if v.IsUnknown() {
+		diags.Append(diag.NewErrorDiagnostic("Normalized JSON Unmarshal Error", "json string value is unknown"))
+		return diags
+	}
+
+	err := json.Unmarshal([]byte(v.ValueString()), target)
+	if err != nil {
+		diags.Append(diag.NewErrorDiagnostic("Normalized JSON Unmarshal Error", err.Error()))
+	}
+
+	return diags
+}
+
+// NewNormalizedNull creates a Normalized with a null value. Determine whether the value is null via IsNull method.
 func NewNormalizedNull() Normalized {
 	return Normalized{
 		StringValue: basetypes.NewStringNull(),
 	}
 }
 
+// NewNormalizedUnknown creates a Normalized with an unknown value. Determine whether the value is unknown via IsUnknown method.
 func NewNormalizedUnknown() Normalized {
 	return Normalized{
 		StringValue: basetypes.NewStringUnknown(),
 	}
 }
 
+// NewNormalizedValue creates a Normalized with a known value. Access the value via ValueString method.
 func NewNormalizedValue(value string) Normalized {
 	return Normalized{
 		StringValue: basetypes.NewStringValue(value),
 	}
 }
 
+// NewNormalizedPointerValue creates a Normalized with a null value if nil or a known value. Access the value via ValueStringPointer method.
 func NewNormalizedPointerValue(value *string) Normalized {
 	return Normalized{
 		StringValue: basetypes.NewStringPointerValue(value),
