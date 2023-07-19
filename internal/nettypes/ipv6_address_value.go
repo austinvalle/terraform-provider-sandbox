@@ -11,12 +11,17 @@ import (
 )
 
 var (
-	_ basetypes.StringValuable = (*IPv6Address)(nil)
+	_ basetypes.StringValuable                   = (*IPv6Address)(nil)
+	_ basetypes.StringValuableWithSemanticEquals = (*IPv6Address)(nil)
 )
 
 // TODO: docs.
 type IPv6Address struct {
 	basetypes.StringValue
+}
+
+func (v IPv6Address) Type(_ context.Context) attr.Type {
+	return IPv6AddressType{}
 }
 
 func (v IPv6Address) Equal(o attr.Value) bool {
@@ -27,34 +32,6 @@ func (v IPv6Address) Equal(o attr.Value) bool {
 	}
 
 	return v.StringValue.Equal(other.StringValue)
-}
-
-func (v IPv6Address) Type(_ context.Context) attr.Type {
-	return IPv6AddressType{}
-}
-
-func NewIPv6AddressNull() IPv6Address {
-	return IPv6Address{
-		StringValue: basetypes.NewStringNull(),
-	}
-}
-
-func NewIPv6AddressUnknown() IPv6Address {
-	return IPv6Address{
-		StringValue: basetypes.NewStringUnknown(),
-	}
-}
-
-func NewIPv6AddressValue(value string) IPv6Address {
-	return IPv6Address{
-		StringValue: basetypes.NewStringValue(value),
-	}
-}
-
-func NewIPv6AddressPointerValue(value *string) IPv6Address {
-	return IPv6Address{
-		StringValue: basetypes.NewStringPointerValue(value),
-	}
 }
 
 func (v IPv6Address) StringSemanticEquals(_ context.Context, newValuable basetypes.StringValuable) (bool, diag.Diagnostics) {
@@ -79,4 +56,28 @@ func (v IPv6Address) StringSemanticEquals(_ context.Context, newValuable basetyp
 	vIpAddr, _ := netip.ParseAddr(v.ValueString())
 
 	return vIpAddr == newIpAddr, diags
+}
+
+func NewIPv6AddressNull() IPv6Address {
+	return IPv6Address{
+		StringValue: basetypes.NewStringNull(),
+	}
+}
+
+func NewIPv6AddressUnknown() IPv6Address {
+	return IPv6Address{
+		StringValue: basetypes.NewStringUnknown(),
+	}
+}
+
+func NewIPv6AddressValue(value string) IPv6Address {
+	return IPv6Address{
+		StringValue: basetypes.NewStringValue(value),
+	}
+}
+
+func NewIPv6AddressPointerValue(value *string) IPv6Address {
+	return IPv6Address{
+		StringValue: basetypes.NewStringPointerValue(value),
+	}
 }
