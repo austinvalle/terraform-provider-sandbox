@@ -45,7 +45,7 @@ func (v IPv6Address) Equal(o attr.Value) bool {
 }
 
 // StringSemanticEquals returns true if the given IPv6 address string value is semantically equal to the current IPv6 address string value.
-// This comparison utilizes the netip.ParseAddr and then compares the resulting netip.Addr representations. This means compressed IPv6 address values
+// This comparison utilizes netip.ParseAddr and then compares the resulting netip.Addr representations. This means `compressed` IPv6 address values
 // are considered semantically equal to `non-compressed` IPv6 address values.
 //
 // Examples:

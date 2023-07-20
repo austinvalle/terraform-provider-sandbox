@@ -18,19 +18,28 @@ var (
 	_ xattr.TypeWithValidate  = (*IPv6PrefixType)(nil)
 )
 
-// TODO: docs.
+// IPv6PrefixType is an attribute type that represents a valid IPv6 CIDR string (RFC 4291). Semantic equality logic is defined for IPv6PrefixType
+// such that a CIDR string with the address zero bits `compressed` will be considered equivalent to the `non-compressed` string.
+//
+// Examples:
+//   - `0:0:0:0:0:0:0:0/128` is semantically equal to `::/128`
+//   - `2001:0DB8:0:0:0:0:0:0CD3/60` is semantically equal to `2001:0DB8::CD30/60`
+//   - `FF00:0:0:0:0:0:0:0/8` is semantically equal to `FF00::/8`
 type IPv6PrefixType struct {
 	basetypes.StringType
 }
 
-func (t IPv6PrefixType) ValueType(ctx context.Context) attr.Value {
-	return IPv6Prefix{}
-}
-
+// String returns a human readable string of the type name.
 func (t IPv6PrefixType) String() string {
 	return "cidrtypes.IPv6PrefixType"
 }
 
+// ValueType returns the Value type.
+func (t IPv6PrefixType) ValueType(ctx context.Context) attr.Value {
+	return IPv6Prefix{}
+}
+
+// Equal returns true if the given type is equivalent.
 func (t IPv6PrefixType) Equal(o attr.Type) bool {
 	other, ok := o.(IPv6PrefixType)
 
@@ -41,17 +50,34 @@ func (t IPv6PrefixType) Equal(o attr.Type) bool {
 	return t.StringType.Equal(other.StringType)
 }
 
-func (t IPv6PrefixType) Validate(ctx context.Context, value tftypes.Value, valuePath path.Path) diag.Diagnostics {
-	if value.IsNull() || !value.IsKnown() {
-		return nil
+// Validate implements type validation. This type requires the value provided to be a String value that is a valid IPv6 CIDR.
+func (t IPv6PrefixType) Validate(ctx context.Context, in tftypes.Value, path path.Path) diag.Diagnostics {
+	var diags diag.Diagnostics
+
+	if in.Type() == nil {
+		return diags
 	}
 
-	var diags diag.Diagnostics
+	if !in.Type().Is(tftypes.String) {
+		err := fmt.Errorf("expected String value, received %T with value: %v", in, in)
+		diags.AddAttributeError(
+			path,
+			"IPv6 Prefix Type Validation Error",
+			"An unexpected error was encountered trying to validate an attribute value. This is always an error in the provider. "+
+				"Please report the following to the provider developer:\n\n"+err.Error(),
+		)
+		return diags
+	}
+
+	if !in.IsKnown() || in.IsNull() {
+		return diags
+	}
+
 	var valueString string
 
-	if err := value.As(&valueString); err != nil {
+	if err := in.As(&valueString); err != nil {
 		diags.AddAttributeError(
-			valuePath,
+			path,
 			"IPv6 Prefix Type Validation Error",
 			"An unexpected error was encountered trying to validate an attribute value. This is always an error in the provider. "+
 				"Please report the following to the provider developer:\n\n"+err.Error(),
@@ -62,12 +88,10 @@ func (t IPv6PrefixType) Validate(ctx context.Context, value tftypes.Value, value
 
 	ipPrefix, err := netip.ParsePrefix(valueString)
 	if err != nil {
-		// TODO: error message clean-up
 		diags.AddAttributeError(
-			valuePath,
+			path,
 			"Invalid IPv6 CIDR String Value",
 			"A string value was provided that is not valid IPv6 CIDR string format (RFC 4291).\n\n"+
-				"Path: "+valuePath.String()+"\n"+
 				"Given Value: "+valueString+"\n"+
 				"Error: "+err.Error(),
 		)
@@ -77,12 +101,10 @@ func (t IPv6PrefixType) Validate(ctx context.Context, value tftypes.Value, value
 
 	// TODO: is this correct way to determine IPv4 CIDR?
 	if ipPrefix.Addr().Is4() {
-		// TODO: error message clean-up
 		diags.AddAttributeError(
-			valuePath,
+			path,
 			"Invalid IPv6 CIDR String Value",
 			"An IPv4 CIDR string format was provided, string value must be IPv6 CIDR string format (RFC 4291).\n\n"+
-				"Path: "+valuePath.String()+"\n"+
 				"Given Value: "+valueString+"\n",
 		)
 
@@ -91,12 +113,10 @@ func (t IPv6PrefixType) Validate(ctx context.Context, value tftypes.Value, value
 
 	// TODO: is this correct way to determine IPv6 CIDR?
 	if !ipPrefix.IsValid() || !ipPrefix.Addr().Is6() {
-		// TODO: error message clean-up
 		diags.AddAttributeError(
-			valuePath,
+			path,
 			"Invalid IPv6 CIDR String Value",
 			"A string value was provided that is not valid IPv6 CIDR string format (RFC 4291).\n\n"+
-				"Path: "+valuePath.String()+"\n"+
 				"Given Value: "+valueString+"\n",
 		)
 
@@ -106,12 +126,15 @@ func (t IPv6PrefixType) Validate(ctx context.Context, value tftypes.Value, value
 	return diags
 }
 
+// ValueFromString returns a StringValuable type given a StringValue.
 func (t IPv6PrefixType) ValueFromString(ctx context.Context, in basetypes.StringValue) (basetypes.StringValuable, diag.Diagnostics) {
 	return IPv6Prefix{
 		StringValue: in,
 	}, nil
 }
 
+// ValueFromTerraform returns a Value given a tftypes.Value.  This is meant to convert the tftypes.Value into a more convenient Go type
+// for the provider to consume the data with.
 func (t IPv6PrefixType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
 	attrValue, err := t.StringType.ValueFromTerraform(ctx, in)
 
