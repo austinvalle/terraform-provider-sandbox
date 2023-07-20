@@ -35,7 +35,7 @@ func (v IPv4Address) Equal(o attr.Value) bool {
 	return v.StringValue.Equal(other.StringValue)
 }
 
-// ValueIPv4Address calls (netip).ParseAddr with the IPv4Address StringValue. A null or unknown value will produce an error diagnostic.
+// ValueIPv4Address calls netip.ParseAddr with the IPv4Address StringValue. A null or unknown value will produce an error diagnostic.
 func (v IPv4Address) ValueIPv4Address() (netip.Addr, diag.Diagnostics) {
 	var diags diag.Diagnostics
 

@@ -15,15 +15,25 @@ var (
 	_ basetypes.StringValuableWithSemanticEquals = (*IPv6Address)(nil)
 )
 
-// TODO: docs.
+// IPv6Address represents a valid IPv6 address string (RFC 4291). Semantic equality logic is defined for IPv6Address
+// such that an address string with the zero bits `compressed` will be considered equivalent to the `non-compressed` string.
+//
+// Examples:
+//   - `0:0:0:0:0:0:0:0` is semantically equal to `::`
+//   - `2001:DB8:0:0:8:800:200C:417A` is semantically equal to `2001:DB8::8:800:200C:417A`
+//   - `FF01:0:0:0:0:0:0:101` is semantically equal to `FF01::101`
+//
+// IPv6Address also supports IPv6 address strings with embedded IPv4 addresses, see RFC 4291 for more details: https://www.rfc-editor.org/rfc/rfc4291.html#section-2.5.5
 type IPv6Address struct {
 	basetypes.StringValue
 }
 
+// Type returns an IPv6AddressType.
 func (v IPv6Address) Type(_ context.Context) attr.Type {
 	return IPv6AddressType{}
 }
 
+// Equal returns true if the given value is equivalent.
 func (v IPv6Address) Equal(o attr.Value) bool {
 	other, ok := o.(IPv6Address)
 
@@ -34,6 +44,16 @@ func (v IPv6Address) Equal(o attr.Value) bool {
 	return v.StringValue.Equal(other.StringValue)
 }
 
+// StringSemanticEquals returns true if the given IPv6 address string value is semantically equal to the current IPv6 address string value.
+// This comparison utilizes the netip.ParseAddr and then compares the resulting netip.Addr representations. This means compressed IPv6 address values
+// are considered semantically equal to `non-compressed` IPv6 address values.
+//
+// Examples:
+//   - `0:0:0:0:0:0:0:0` is semantically equal to `::`
+//   - `2001:DB8:0:0:8:800:200C:417A` is semantically equal to `2001:DB8::8:800:200C:417A`
+//   - `FF01:0:0:0:0:0:0:101` is semantically equal to `FF01::101`
+//
+// See RFC 4291 for more details on IPv6 string format: https://www.rfc-editor.org/rfc/rfc4291.html#section-2.2
 func (v IPv6Address) StringSemanticEquals(_ context.Context, newValuable basetypes.StringValuable) (bool, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
@@ -50,32 +70,58 @@ func (v IPv6Address) StringSemanticEquals(_ context.Context, newValuable basetyp
 		return false, diags
 	}
 
-	// TODO: are ignoring these errors okay?
+	// IPv6 addresses are already validated at this point, ignoring errors
 	newIpAddr, _ := netip.ParseAddr(newValue.ValueString())
-	// TODO: better name for vIpAddr?
-	vIpAddr, _ := netip.ParseAddr(v.ValueString())
+	currentIpAddr, _ := netip.ParseAddr(v.ValueString())
 
-	return vIpAddr == newIpAddr, diags
+	return currentIpAddr == newIpAddr, diags
 }
 
+// ValueIPv6Address calls netip.ParseAddr with the IPv6Address StringValue. A null or unknown value will produce an error diagnostic.
+func (v IPv6Address) ValueIPv6Address() (netip.Addr, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	if v.IsNull() {
+		diags.Append(diag.NewErrorDiagnostic("IPv6Address ValueIPv6Address Error", "IPv6 address string value is null"))
+		return netip.Addr{}, diags
+	}
+
+	if v.IsUnknown() {
+		diags.Append(diag.NewErrorDiagnostic("IPv6Address ValueIPv6Address Error", "IPv6 address string value is unknown"))
+		return netip.Addr{}, diags
+	}
+
+	ipv6Addr, err := netip.ParseAddr(v.ValueString())
+	if err != nil {
+		diags.Append(diag.NewErrorDiagnostic("IPv6Address ValueIPv6Address Error", err.Error()))
+		return netip.Addr{}, diags
+	}
+
+	return ipv6Addr, nil
+}
+
+// NewIPv6AddressNull creates an IPv6Address with a null value. Determine whether the value is null via IsNull method.
 func NewIPv6AddressNull() IPv6Address {
 	return IPv6Address{
 		StringValue: basetypes.NewStringNull(),
 	}
 }
 
+// NewIPv6AddressUnknown creates an IPv6Address with an unknown value. Determine whether the value is unknown via IsUnknown method.
 func NewIPv6AddressUnknown() IPv6Address {
 	return IPv6Address{
 		StringValue: basetypes.NewStringUnknown(),
 	}
 }
 
+// NewIPv6AddressValue creates an IPv6Address with a known value. Access the value via ValueString method.
 func NewIPv6AddressValue(value string) IPv6Address {
 	return IPv6Address{
 		StringValue: basetypes.NewStringValue(value),
 	}
 }
 
+// NewIPv6AddressPointerValue creates an IPv6Address with a null value if nil or a known value. Access the value via ValueStringPointer method.
 func NewIPv6AddressPointerValue(value *string) IPv6Address {
 	return IPv6Address{
 		StringValue: basetypes.NewStringPointerValue(value),
