@@ -4,9 +4,9 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/austinvalle/terraform-provider-sandbox/internal/cidrtypes"
-	"github.com/austinvalle/terraform-provider-sandbox/internal/jsontypes"
-	"github.com/austinvalle/terraform-provider-sandbox/internal/nettypes"
+	"github.com/hashicorp/terraform-plugin-framework-jsontypes/jsontypes"
+	"github.com/hashicorp/terraform-plugin-framework-nettypes/cidrtypes"
+	"github.com/hashicorp/terraform-plugin-framework-nettypes/iptypes"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -26,11 +26,11 @@ type thingResourceModel struct {
 	JsonExact      jsontypes.Exact      `tfsdk:"json_exact"`
 	JsonNormalized jsontypes.Normalized `tfsdk:"json_normalized"`
 
-	// nettypes
-	IPv4AddressBefore types.String         `tfsdk:"ipv4_address_before"`
-	IPv6AddressBefore types.String         `tfsdk:"ipv6_address_before"`
-	IPv4Address       nettypes.IPv4Address `tfsdk:"ipv4_address"`
-	IPv6Address       nettypes.IPv6Address `tfsdk:"ipv6_address"`
+	// iptypes
+	IPv4AddressBefore types.String        `tfsdk:"ipv4_address_before"`
+	IPv6AddressBefore types.String        `tfsdk:"ipv6_address_before"`
+	IPv4Address       iptypes.IPv4Address `tfsdk:"ipv4_address"`
+	IPv6Address       iptypes.IPv6Address `tfsdk:"ipv6_address"`
 
 	// cidrtypes
 	IPv4CidrBefore types.String         `tfsdk:"ipv4_cidr_before"`
@@ -62,7 +62,7 @@ func (r *thingResource) Schema(ctx context.Context, req resource.SchemaRequest, 
 				Computed:   true,
 			},
 
-			// nettypes
+			// iptypes
 			"ipv4_address_before": schema.StringAttribute{
 				Optional: true,
 				Computed: true,
@@ -72,12 +72,12 @@ func (r *thingResource) Schema(ctx context.Context, req resource.SchemaRequest, 
 				Computed: true,
 			},
 			"ipv4_address": schema.StringAttribute{
-				CustomType: nettypes.IPv4AddressType{},
+				CustomType: iptypes.IPv4AddressType{},
 				Optional:   true,
 				Computed:   true,
 			},
 			"ipv6_address": schema.StringAttribute{
-				CustomType: nettypes.IPv6AddressType{},
+				CustomType: iptypes.IPv6AddressType{},
 				Optional:   true,
 				Computed:   true,
 			},
@@ -137,18 +137,22 @@ func (r *thingResource) Update(ctx context.Context, req resource.UpdateRequest, 
 
 	// Simulate normalizing JSON by re-ordering properties
 	var obj any
-	//nolint
-	json.Unmarshal([]byte(data.JsonNormalized.ValueString()), &obj)
+	data.JsonNormalized.Unmarshal(&obj)
 	normalizedJSON, _ := json.Marshal(obj)
 	data.JsonNormalized = jsontypes.NewNormalizedValue(string(normalizedJSON))
 
+	var obj1 any
+	data.JsonExact.Unmarshal(&obj1)
+	normalizedJSON1, _ := json.Marshal(obj1)
+	data.JsonExact = jsontypes.NewExactValue(string(normalizedJSON1))
+
 	// Simulate normalizing IPv6 by shorthanding/expanding
 	if data.IPv6Address.ValueString() == "0:0:0:0:0:0:0:0" {
-		data.IPv6Address = nettypes.NewIPv6AddressValue("::")
+		data.IPv6Address = iptypes.NewIPv6AddressValue("::")
 	} else if data.IPv6Address.ValueString() == "::1" {
-		data.IPv6Address = nettypes.NewIPv6AddressValue("0:0:0:0:0:0:0:1")
+		data.IPv6Address = iptypes.NewIPv6AddressValue("0:0:0:0:0:0:0:1")
 	} else if data.IPv6Address.ValueString() == "0:0:0:0:0:FFFF:129.144.52.38" {
-		data.IPv6Address = nettypes.NewIPv6AddressValue("::FFFF:129.144.52.38")
+		data.IPv6Address = iptypes.NewIPv6AddressValue("::FFFF:129.144.52.38")
 	}
 
 	// Simulate normalizing IPv6 CIDR by shorthanding/expanding

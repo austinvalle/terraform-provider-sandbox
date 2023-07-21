@@ -8,25 +8,7 @@ terraform {
 
 locals {
   # json_example = "abc"
-  json_example = jsonencode(
-    {
-      hello   = "world-update",
-      num     = 3,
-      decimal = 2.2,
-      itdobe  = true,
-      obj = {
-        wewant = "some-more"
-      },
-      arr = [
-        {
-          ayo = "itsyaboi-1"
-        },
-        {
-          ayo = "itsyaboi-2"
-        }
-      ]
-    }
-  )
+  json_example = "{\"hello\": \"world1\", \"abc\": 2}"
 
   ipv4_example = "192.0.1.246"
   # ipv6_example = "0:0:0:0:0:0:0:0"
