@@ -141,11 +141,6 @@ func (r *thingResource) Update(ctx context.Context, req resource.UpdateRequest, 
 	normalizedJSON, _ := json.Marshal(obj)
 	data.JsonNormalized = jsontypes.NewNormalizedValue(string(normalizedJSON))
 
-	var obj1 any
-	data.JsonExact.Unmarshal(&obj1)
-	normalizedJSON1, _ := json.Marshal(obj1)
-	data.JsonExact = jsontypes.NewExactValue(string(normalizedJSON1))
-
 	// Simulate normalizing IPv6 by shorthanding/expanding
 	if data.IPv6Address.ValueString() == "0:0:0:0:0:0:0:0" {
 		data.IPv6Address = iptypes.NewIPv6AddressValue("::")

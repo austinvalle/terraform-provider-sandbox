@@ -8,7 +8,7 @@ terraform {
 
 locals {
   # json_example = "abc"
-  json_example = "{\"hello\": \"world1\", \"abc\": 2}"
+  json_example = "{\"hello\": \"world1\", \"abc\": 3}"
 
   ipv4_example = "192.0.1.246"
   # ipv6_example = "0:0:0:0:0:0:0:0"
