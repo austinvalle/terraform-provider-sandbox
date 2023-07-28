@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-jsontypes/jsontypes"
 	"github.com/hashicorp/terraform-plugin-framework-nettypes/cidrtypes"
 	"github.com/hashicorp/terraform-plugin-framework-nettypes/iptypes"
+	"github.com/hashicorp/terraform-plugin-framework-timetypes/timetypes"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -37,6 +38,10 @@ type thingResourceModel struct {
 	IPv6CidrBefore types.String         `tfsdk:"ipv6_cidr_before"`
 	IPv4Cidr       cidrtypes.IPv4Prefix `tfsdk:"ipv4_cidr"`
 	IPv6Cidr       cidrtypes.IPv6Prefix `tfsdk:"ipv6_cidr"`
+
+	// timetypes
+	RFC3339Before types.String      `tfsdk:"rfc3339_before"`
+	RFC3339After  timetypes.RFC3339 `tfsdk:"rfc3339"`
 }
 
 func (r *thingResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -101,6 +106,17 @@ func (r *thingResource) Schema(ctx context.Context, req resource.SchemaRequest, 
 				Optional:   true,
 				Computed:   true,
 			},
+
+			// timetypes
+			"rfc3339_before": schema.StringAttribute{
+				Optional: true,
+				Computed: true,
+			},
+			"rfc3339": schema.StringAttribute{
+				CustomType: timetypes.RFC3339Type{},
+				Optional:   true,
+				Computed:   true,
+			},
 		},
 	}
 }
@@ -113,6 +129,33 @@ func (r *thingResource) Create(ctx context.Context, req resource.CreateRequest, 
 		return
 	}
 
+	// Simulate normalizing JSON by re-ordering properties
+	var obj any
+	data.JsonNormalized.Unmarshal(&obj)
+	normalizedJSON, _ := json.Marshal(obj)
+	data.JsonNormalized = jsontypes.NewNormalizedValue(string(normalizedJSON))
+
+	// Simulate normalizing IPv6 by shorthanding/expanding
+	if data.IPv6Address.ValueString() == "0:0:0:0:0:0:0:0" {
+		data.IPv6Address = iptypes.NewIPv6AddressValue("::")
+	} else if data.IPv6Address.ValueString() == "::1" {
+		data.IPv6Address = iptypes.NewIPv6AddressValue("0:0:0:0:0:0:0:1")
+	} else if data.IPv6Address.ValueString() == "0:0:0:0:0:FFFF:129.144.52.38" {
+		data.IPv6Address = iptypes.NewIPv6AddressValue("::FFFF:129.144.52.38")
+	}
+
+	// Simulate normalizing IPv6 CIDR by shorthanding/expanding
+	if data.IPv6Cidr.ValueString() == "2001:db8:0:0:0:0:0:0/117" {
+		data.IPv6Cidr = cidrtypes.NewIPv6PrefixValue("2001:db8::/117")
+	} else if data.IPv6Cidr.ValueString() == "2001:db8::/115" {
+		data.IPv6Cidr = cidrtypes.NewIPv6PrefixValue("2001:db8:0:0:0:0:0:0/115")
+	}
+
+	// Simulate normalizing time type by replacing Z offset
+	if data.RFC3339After.ValueString() == "2023-07-25T23:43:16Z" {
+		data.RFC3339After = timetypes.NewRFC3339Value("2023-07-25T23:43:16+00:00")
+	}
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -122,6 +165,33 @@ func (r *thingResource) Read(ctx context.Context, req resource.ReadRequest, resp
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
+	}
+
+	// Simulate normalizing JSON by re-ordering properties
+	var obj any
+	data.JsonNormalized.Unmarshal(&obj)
+	normalizedJSON, _ := json.Marshal(obj)
+	data.JsonNormalized = jsontypes.NewNormalizedValue(string(normalizedJSON))
+
+	// Simulate normalizing IPv6 by shorthanding/expanding
+	if data.IPv6Address.ValueString() == "0:0:0:0:0:0:0:0" {
+		data.IPv6Address = iptypes.NewIPv6AddressValue("::")
+	} else if data.IPv6Address.ValueString() == "::1" {
+		data.IPv6Address = iptypes.NewIPv6AddressValue("0:0:0:0:0:0:0:1")
+	} else if data.IPv6Address.ValueString() == "0:0:0:0:0:FFFF:129.144.52.38" {
+		data.IPv6Address = iptypes.NewIPv6AddressValue("::FFFF:129.144.52.38")
+	}
+
+	// Simulate normalizing IPv6 CIDR by shorthanding/expanding
+	if data.IPv6Cidr.ValueString() == "2001:db8:0:0:0:0:0:0/117" {
+		data.IPv6Cidr = cidrtypes.NewIPv6PrefixValue("2001:db8::/117")
+	} else if data.IPv6Cidr.ValueString() == "2001:db8::/115" {
+		data.IPv6Cidr = cidrtypes.NewIPv6PrefixValue("2001:db8:0:0:0:0:0:0/115")
+	}
+
+	// Simulate normalizing time type by replacing Z offset
+	if data.RFC3339After.ValueString() == "2023-07-25T23:43:16Z" {
+		data.RFC3339After = timetypes.NewRFC3339Value("2023-07-25T23:43:16+00:00")
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -155,6 +225,11 @@ func (r *thingResource) Update(ctx context.Context, req resource.UpdateRequest, 
 		data.IPv6Cidr = cidrtypes.NewIPv6PrefixValue("2001:db8::/117")
 	} else if data.IPv6Cidr.ValueString() == "2001:db8::/115" {
 		data.IPv6Cidr = cidrtypes.NewIPv6PrefixValue("2001:db8:0:0:0:0:0:0/115")
+	}
+
+	// Simulate normalizing time type by replacing Z offset
+	if data.RFC3339After.ValueString() == "2023-07-25T23:43:16Z" {
+		data.RFC3339After = timetypes.NewRFC3339Value("2023-07-25T23:43:16+00:00")
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)

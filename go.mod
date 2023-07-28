@@ -3,11 +3,11 @@ module github.com/austinvalle/terraform-provider-sandbox
 go 1.18
 
 require (
-	github.com/google/go-cmp v0.5.9
 	github.com/hashicorp/terraform-plugin-docs v0.13.0
 	github.com/hashicorp/terraform-plugin-framework v1.3.3
-	github.com/hashicorp/terraform-plugin-framework-jsontypes v0.0.0-20230721174418-34447b87c352
-	github.com/hashicorp/terraform-plugin-go v0.18.0
+	github.com/hashicorp/terraform-plugin-framework-jsontypes v0.1.0
+	github.com/hashicorp/terraform-plugin-framework-nettypes v0.1.0
+	github.com/hashicorp/terraform-plugin-framework-timetypes v0.1.0
 )
 
 require (
@@ -31,7 +31,7 @@ require (
 	github.com/hashicorp/hc-install v0.4.0 // indirect
 	github.com/hashicorp/terraform-exec v0.17.3 // indirect
 	github.com/hashicorp/terraform-json v0.14.0 // indirect
-	github.com/hashicorp/terraform-plugin-framework-nettypes v0.0.0-20230721210527-f7ac8e73207b // indirect
+	github.com/hashicorp/terraform-plugin-go v0.18.0 // indirect
 	github.com/hashicorp/terraform-plugin-log v0.9.0 // indirect
 	github.com/hashicorp/terraform-registry-address v0.2.1 // indirect
 	github.com/hashicorp/terraform-svchost v0.1.1 // indirect

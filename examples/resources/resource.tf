@@ -25,6 +25,9 @@ locals {
 
   # ipv6_cidr = "2001:db8:0:0:0:0:0:0/117"
   ipv6_cidr = "2001:db8::/115"
+
+  # rfc3339_example = timestamp()
+  rfc3339_example = "2023-07-25T23:43:16Z"
 }
 
 
@@ -43,4 +46,7 @@ resource "examplecloud_thing" "this" {
 
   ipv4_cidr = local.ipv4_cidr
   ipv6_cidr = local.ipv6_cidr
+
+  rfc3339_before = local.rfc3339_example
+  rfc3339        = local.rfc3339_example
 }
