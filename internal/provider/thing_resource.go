@@ -17,7 +17,7 @@ func NewThingResource() resource.Resource {
 type thingResource struct{}
 
 type thingResourceModel struct {
-	MagicNone types.String `tfsdk:"magic_none"`
+	Word types.String `tfsdk:"word"`
 }
 
 func (r *thingResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -27,7 +27,7 @@ func (r *thingResource) Metadata(ctx context.Context, req resource.MetadataReque
 func (r *thingResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"magic_none": schema.StringAttribute{
+			"word": schema.StringAttribute{
 				Optional: true,
 				Computed: true,
 			},
