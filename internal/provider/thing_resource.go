@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -43,6 +44,8 @@ func (r *thingResource) Create(ctx context.Context, req resource.CreateRequest, 
 		return
 	}
 
+	data.Word = types.StringValue(strings.ToUpper(data.Word.ValueString()))
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -64,6 +67,7 @@ func (r *thingResource) Update(ctx context.Context, req resource.UpdateRequest, 
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	data.Word = types.StringValue(strings.ToUpper(data.Word.ValueString()))
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }

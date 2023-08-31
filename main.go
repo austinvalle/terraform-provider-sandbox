@@ -5,9 +5,8 @@ import (
 	"flag"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-framework/providerserver"
-
 	"github.com/austinvalle/terraform-provider-sandbox/internal/provider"
+	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 )
 
 // Run "go generate" to format example terraform files and generate the docs for the registry/website
@@ -26,13 +25,20 @@ func main() {
 	flag.BoolVar(&debug, "debug", false, "set to true to run the provider with support for debuggers like delve")
 	flag.Parse()
 
-	opts := providerserver.ServeOpts{
-		Address: "registry.terraform.io/austinvalle/sandbox",
+	addr := "registry.terraform.io/austinvalle/sandbox"
+
+	// SDKv2
+	// plugin.Serve(&plugin.ServeOpts{
+	// 	Debug:        debug,
+	// 	ProviderAddr: addr,
+	// 	ProviderFunc: sdkprovider.New(),
+	// })
+
+	// Plugin Framework
+	err := providerserver.Serve(context.Background(), provider.New(), providerserver.ServeOpts{
+		Address: addr,
 		Debug:   debug,
-	}
-
-	err := providerserver.Serve(context.Background(), provider.New(), opts)
-
+	})
 	if err != nil {
 		log.Fatal(err.Error())
 	}
