@@ -154,7 +154,7 @@ func (r *fooResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 func DoFoo(client any, method string, id string) (Foo, error) {
 	return Foo{
 		Bar: Bar{
-			Baz: "baz-value",
+			Baz: "using-object-from-now",
 		},
 	}, nil
 }
