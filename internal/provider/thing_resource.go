@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -56,7 +57,9 @@ func (r *fooResource) Schema(ctx context.Context, req resource.SchemaRequest, re
 				Computed: true,
 			},
 			"bar": schema.SingleNestedAttribute{
-				Computed:    true,
+				Computed: true,
+				// This will break the apply
+				Default:     objectdefault.StaticValue(types.ObjectNull(barModelTF)),
 				Description: "The foo attributes.",
 				Attributes: map[string]schema.Attribute{
 					"baz": schema.StringAttribute{
@@ -110,17 +113,17 @@ func (resource *fooResource) Read(ctx context.Context, req resource.ReadRequest,
 	}
 
 	// assume below is executing sdk successfully and returning Foo type struct
-	responseBody, _ := DoFoo(struct{}{}, "GET", state.ID.ValueString())
+	// responseBody, _ := DoFoo(struct{}{}, "GET", state.ID.ValueString())
 	// error handling etc. omitted
 
 	// assign response fields to schema values
 	// assign foo attributes
-	var barConvertDiags diag.Diagnostics
-	state.Bar, barConvertDiags = BarGoToTerraform(ctx, responseBody.Bar)
-	resp.Diagnostics.Append(barConvertDiags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
+	// var barConvertDiags diag.Diagnostics
+	// state.Bar, barConvertDiags = BarGoToTerraform(ctx, responseBody.Bar)
+	// resp.Diagnostics.Append(barConvertDiags...)
+	// if resp.Diagnostics.HasError() {
+	// 	return
+	// }
 
 	// more conversions here analogous to above, but the above alone is enough to trigger this error
 
