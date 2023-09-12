@@ -6,5 +6,5 @@ terraform {
   }
 }
 resource "examplecloud_thing" "this" {
-  word = "value"
+
 }

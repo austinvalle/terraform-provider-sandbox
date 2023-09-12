@@ -36,6 +36,6 @@ func (p *examplecloudProvider) DataSources(ctx context.Context) []func() datasou
 
 func (p *examplecloudProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		NewThingResource,
+		NewFooResource,
 	}
 }
