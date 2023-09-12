@@ -160,7 +160,7 @@ func DoFoo(client any, method string, id string) (Foo, error) {
 }
 
 func BarGoToTerraform(ctx context.Context, b Bar) (types.Object, diag.Diagnostics) {
-	return types.ObjectValue(barModelTF, map[string]attr.Value{
-		"baz": types.StringValue(b.Baz),
+	return types.ObjectValueFrom(ctx, barModelTF, barModel{
+		Baz: types.StringValue(b.Baz),
 	})
 }
