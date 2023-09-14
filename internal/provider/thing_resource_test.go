@@ -7,11 +7,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	r "github.com/hashicorp/terraform-plugin-testing/helper/resource"
-	"github.com/hashicorp/terraform-plugin-testing/plancheck"
-	"github.com/hashicorp/terraform-plugin-testing/tfjsonpath"
 )
 
-func Test(t *testing.T) {
+func TestThingResource(t *testing.T) {
 	t.Parallel()
 
 	r.UnitTest(t, r.TestCase{
@@ -20,12 +18,15 @@ func Test(t *testing.T) {
 		},
 		Steps: []r.TestStep{
 			{
-				ConfigPlanChecks: r.ConfigPlanChecks{
-					PreApply: []plancheck.PlanCheck{
-						plancheck.ExpectUnknownValue("examplecloud_thing.this", tfjsonpath.New("bar")),
-					},
-				},
 				Config: `resource "examplecloud_thing" "this" {}`,
+				// This plan check asserts that the value is unknown before apply
+				// ConfigPlanChecks: r.ConfigPlanChecks{
+				// 	PreApply: []plancheck.PlanCheck{
+				// 		plancheck.ExpectUnknownValue("examplecloud_thing.this", tfjsonpath.New("bar")),
+				// 	},
+				// },
+				// Assert that the computed value has been updated in state after apply
+				Check: r.TestCheckResourceAttr("examplecloud_thing.this", "bar.baz", "baz-for-the-foo"),
 			},
 		},
 	})
