@@ -8,34 +8,34 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 )
 
-var _ provider.Provider = (*examplecloudProvider)(nil)
+var _ provider.Provider = (*sandboxProvider)(nil)
 
 func New() func() provider.Provider {
 	return func() provider.Provider {
-		return &examplecloudProvider{}
+		return &sandboxProvider{}
 	}
 }
 
-type examplecloudProvider struct{}
+type sandboxProvider struct{}
 
-func (p *examplecloudProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
-
-}
-
-func (p *examplecloudProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
+func (p *sandboxProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
 
 }
 
-func (p *examplecloudProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
-	resp.TypeName = "examplecloud"
+func (p *sandboxProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
+
 }
 
-func (p *examplecloudProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
+func (p *sandboxProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
+	resp.TypeName = "sandbox"
+}
+
+func (p *sandboxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{}
 }
 
-func (p *examplecloudProvider) Resources(ctx context.Context) []func() resource.Resource {
+func (p *sandboxProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		NewFooResource,
+		NewThingResource,
 	}
 }

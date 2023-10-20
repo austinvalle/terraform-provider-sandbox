@@ -25,16 +25,8 @@ func main() {
 	flag.BoolVar(&debug, "debug", false, "set to true to run the provider with support for debuggers like delve")
 	flag.Parse()
 
-	addr := "registry.terraform.io/austinvalle/sandbox"
+	addr := "definitelynothashicorp.com/austinvalle/sandbox"
 
-	// SDKv2
-	// plugin.Serve(&plugin.ServeOpts{
-	// 	Debug:        debug,
-	// 	ProviderAddr: addr,
-	// 	ProviderFunc: sdkprovider.New(),
-	// })
-
-	// Plugin Framework
 	err := providerserver.Serve(context.Background(), provider.New(), providerserver.ServeOpts{
 		Address: addr,
 		Debug:   debug,

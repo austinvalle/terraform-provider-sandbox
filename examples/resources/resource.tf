@@ -1,8 +1,10 @@
 terraform {
   required_providers {
-    examplecloud = {
+    sandbox = {
       source = "austinvalle/sandbox"
     }
   }
 }
-resource "examplecloud_thing" "this" {}
+resource "sandbox_thing" "this" {
+  example_attr = "hello there!"
+}
