@@ -27,7 +27,7 @@ jobs:
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
       with:
-        terraform_wrapper: false
+        terraform_wrapper: true
 
     - name: Terraform Init
       run: terraform init
@@ -38,5 +38,5 @@ jobs:
     - name: Terraform Apply
       run: terraform apply -auto-approve
 
-    - name: Terraform Apply
+    - name: Output the pet name
       run: terraform output -json | jq '.pet_name.value'
