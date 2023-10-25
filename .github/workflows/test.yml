@@ -25,7 +25,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v2
+      uses: hashicorp/setup-terraform@bb87bf54b80b50581aae1cb56eeb822eaef1d5d3
       with:
         terraform_wrapper: true
 
