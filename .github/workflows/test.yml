@@ -42,11 +42,11 @@ jobs:
       run: |
         terraform output -json > /tmp/test.json
 
-        cat /tmp/test.json | jq -r '.pet_name'
+        cat /tmp/test.json
+
+        jq -r '.pet_name.value' /tmp/test.json
 
         cat /tmp/test.json | jq -r '.pet_name.value'
-
-        cat /tmp/test.json | jq -r '.pet_name.type'
 
 
   terraform-run-local-no-wrapper:
@@ -81,8 +81,8 @@ jobs:
       run: |
         terraform output -json > /tmp/test.json
 
-        cat /tmp/test.json | jq -r '.pet_name'
+        cat /tmp/test.json
+
+        jq -r '.pet_name.value' /tmp/test.json
 
         cat /tmp/test.json | jq -r '.pet_name.value'
-
-        cat /tmp/test.json | jq -r '.pet_name.type'
