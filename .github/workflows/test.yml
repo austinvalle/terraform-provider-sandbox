@@ -38,14 +38,14 @@ jobs:
     - name: Terraform Apply
       run: terraform apply -auto-approve
 
-    - name: Output all
-      run: 
-        terraform output -json
-
     - name: Output the pet name
       run: |
+        terraform output -json
+
         terraform output -json | jq -r '.pet_name'
+
         terraform output -json | jq -r '.pet_name.value'
+
         terraform output -json | jq -r '.pet_name.type'
 
 
@@ -77,12 +77,12 @@ jobs:
     - name: Terraform Apply
       run: terraform apply -auto-approve
 
-    - name: Output all
-      run: 
-        terraform output -json
-
     - name: Output the pet name
       run: |
+        terraform output -json
+
         terraform output -json | jq -r '.pet_name'
+
         terraform output -json | jq -r '.pet_name.value'
+        
         terraform output -json | jq -r '.pet_name.type'
