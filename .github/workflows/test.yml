@@ -43,7 +43,7 @@ jobs:
         terraform output -json
 
     - name: Output the pet name
-      run:
+      run: |
         terraform output -json | jq '.pet_name'
         terraform output -json | jq '.pet_name.value'
         terraform output -json | jq '.pet_name.type'
@@ -82,7 +82,7 @@ jobs:
         terraform output -json
 
     - name: Output the pet name
-      run:
+      run: |
         terraform output -json | jq '.pet_name'
         terraform output -json | jq '.pet_name.value'
         terraform output -json | jq '.pet_name.type'
