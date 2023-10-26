@@ -44,9 +44,9 @@ jobs:
 
     - name: Output the pet name
       run: |
-        terraform output -json | jq '.pet_name'
-        terraform output -json | jq '.pet_name.value'
-        terraform output -json | jq '.pet_name.type'
+        terraform output -json | jq -r '.pet_name'
+        terraform output -json | jq -r '.pet_name.value'
+        terraform output -json | jq -r '.pet_name.type'
 
 
   terraform-run-local-no-wrapper:
@@ -83,6 +83,6 @@ jobs:
 
     - name: Output the pet name
       run: |
-        terraform output -json | jq '.pet_name'
-        terraform output -json | jq '.pet_name.value'
-        terraform output -json | jq '.pet_name.type'
+        terraform output -json | jq -r '.pet_name'
+        terraform output -json | jq -r '.pet_name.value'
+        terraform output -json | jq -r '.pet_name.type'
