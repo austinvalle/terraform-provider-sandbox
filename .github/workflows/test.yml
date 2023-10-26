@@ -42,7 +42,7 @@ jobs:
       run: |
         terraform output -json > /tmp/test.json
 
-        cat /tmp/test.json
+        cat -vet /tmp/test.json
 
         jq -r '.pet_name.value' /tmp/test.json
 
@@ -81,7 +81,7 @@ jobs:
       run: |
         terraform output -json > /tmp/test.json
 
-        cat /tmp/test.json
+        cat -vet /tmp/test.json
 
         jq -r '.pet_name.value' /tmp/test.json
 
