@@ -1,10 +1,15 @@
 terraform {
   required_providers {
-    sandbox = {
+    examplecloud = {
       source = "austinvalle/sandbox"
     }
   }
 }
-resource "sandbox_thing" "this" {
-  example_attr = "hello there!"
+resource "examplecloud_thing" "this" {
+  set = [
+    {
+      name     = "test2"
+      bool_two = true
+    }
+  ]
 }

@@ -27,7 +27,7 @@ func (p *sandboxProvider) Configure(ctx context.Context, req provider.ConfigureR
 }
 
 func (p *sandboxProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
-	resp.TypeName = "sandbox"
+	resp.TypeName = "examplecloud"
 }
 
 func (p *sandboxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
