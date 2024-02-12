@@ -5,11 +5,7 @@ terraform {
     }
   }
 }
+
 resource "examplecloud_thing" "this" {
-  set = [
-    {
-      name     = "test2"
-      bool_two = true
-    }
-  ]
+  dynamic_attr = tolist([1, 2, 3])
 }
