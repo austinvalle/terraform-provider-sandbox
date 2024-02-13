@@ -7,5 +7,5 @@ terraform {
 }
 
 resource "examplecloud_thing" "this" {
-  dynamic_attr = tolist([1, 2, 3])
+  dynamic_attr_required = tolist([1, 2, plantimestamp()])
 }

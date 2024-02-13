@@ -5,6 +5,9 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/dynamicdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/dynamicplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -17,7 +20,10 @@ func NewThingResource() resource.Resource {
 type thingResource struct{}
 
 type thingResourceModel struct {
-	DynamicAttr types.Dynamic `tfsdk:"dynamic_attr"`
+	DynamicAttrRequired         types.Dynamic `tfsdk:"dynamic_attr_required"`
+	DynamicAttrComputed         types.Dynamic `tfsdk:"dynamic_attr_computed"`
+	DynamicAttrOptional         types.Dynamic `tfsdk:"dynamic_attr_optional"`
+	DynamicAttrComputedOptional types.Dynamic `tfsdk:"dynamic_attr_computed_optional"`
 }
 
 func (r *thingResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -27,8 +33,24 @@ func (r *thingResource) Metadata(ctx context.Context, req resource.MetadataReque
 func (r *thingResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"dynamic_attr": schema.DynamicAttribute{
+			"dynamic_attr_required": schema.DynamicAttribute{
 				Required: true,
+			},
+			"dynamic_attr_computed": schema.DynamicAttribute{
+				Computed: true,
+				PlanModifiers: []planmodifier.Dynamic{
+					dynamicplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"dynamic_attr_optional": schema.DynamicAttribute{
+				Optional: true,
+			},
+			"dynamic_attr_computed_optional": schema.DynamicAttribute{
+				Computed: true,
+				Optional: true,
+				Default: dynamicdefault.StaticDynamic(
+					types.DynamicValue(types.StringValue("hello default")),
+				),
 			},
 		},
 	}
@@ -44,6 +66,11 @@ func (r *thingResource) Create(ctx context.Context, req resource.CreateRequest, 
 		return
 	}
 
+	data.DynamicAttrComputed = types.DynamicValue(types.BoolValue(true))
+	if data.DynamicAttrComputedOptional.IsUnknown() {
+		data.DynamicAttrComputedOptional = types.DynamicValue(types.StringValue("computed/optional created!"))
+	}
+
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -57,6 +84,9 @@ func (r *thingResource) Read(ctx context.Context, req resource.ReadRequest, resp
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	data.DynamicAttrComputed = types.DynamicValue(types.StringValue("it got refreshed!"))
+	data.DynamicAttrComputedOptional = types.DynamicValue(types.StringValue("creating some drift"))
 
 	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
