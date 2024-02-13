@@ -4,11 +4,13 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/function"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 )
 
 var _ provider.Provider = (*sandboxProvider)(nil)
+var _ provider.ProviderWithFunctions = (*sandboxProvider)(nil)
 
 func New() func() provider.Provider {
 	return func() provider.Provider {
@@ -37,5 +39,11 @@ func (p *sandboxProvider) DataSources(ctx context.Context) []func() datasource.D
 func (p *sandboxProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		NewThingResource,
+	}
+}
+
+func (p *sandboxProvider) Functions(ctx context.Context) []func() function.Function {
+	return []func() function.Function{
+		NewDynamicTestFunction,
 	}
 }
