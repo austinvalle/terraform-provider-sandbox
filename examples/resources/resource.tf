@@ -6,15 +6,23 @@ terraform {
   }
 }
 
-output "test_1" {
-  value = provider :: examplecloud :: dynamic_test({ bool_attr = false }, tolist(["it's", "a", "list"]))
+# Managed resource with dynamic attributes
+resource "examplecloud_thing" "this" {
+  dynamic = [true, { "a" : "hello there" }]
+  static_obj = {
+    dynamic = ["check", "this", "out"]
+    # dynamic = tolist(["check", "this", "out"])
+    # dynamic = toset(["check", "this", "out"])
+  }
+
+  static_list = ["this", "is", "a", "list"]
 }
 
-output "test_2" {
-  value = provider :: examplecloud :: dynamic_test({ string_attr = "hello" }, toset(["it's", "a", "set"]))
+output "dynamic_output" {
+  value = [for num in examplecloud_thing.this.dynamic_computed : num]
 }
 
-
-output "test_3" {
-  value = provider :: examplecloud :: dynamic_test("two", "strings")
-}
+# Function with a static string param and a dynamic variadic parameter
+# output "func_test" {
+#   value = provider::examplecloud::check_things("hey", 1, true)
+# }

@@ -18,6 +18,10 @@ func New() func() provider.Provider {
 	}
 }
 
+func NewProvider() provider.Provider {
+	return &sandboxProvider{}
+}
+
 type sandboxProvider struct{}
 
 func (p *sandboxProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
@@ -44,6 +48,6 @@ func (p *sandboxProvider) Resources(ctx context.Context) []func() resource.Resou
 
 func (p *sandboxProvider) Functions(ctx context.Context) []func() function.Function {
 	return []func() function.Function{
-		NewDynamicTestFunction,
+		NewDoThingFunction,
 	}
 }
