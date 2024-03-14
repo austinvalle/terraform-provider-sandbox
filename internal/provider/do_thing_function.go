@@ -23,41 +23,39 @@ func (f *DoThingFunction) Metadata(ctx context.Context, req function.MetadataReq
 
 func (f *DoThingFunction) Definition(ctx context.Context, req function.DefinitionRequest, resp *function.DefinitionResponse) {
 	resp.Definition = function.Definition{
-		Description: "This function has one static type parameter and a dynamic variadic parameter. The return is a " +
-			"string that contains all the concrete values passed to the function",
-		Parameters: []function.Parameter{
-			function.StringParameter{
-				Name: "param1",
-			},
-		},
 		VariadicParameter: function.DynamicParameter{
-			Name: "varparam",
+			AllowNullValue: true,
 		},
 		Return: function.StringReturn{},
 	}
 }
 
 func (f *DoThingFunction) Run(ctx context.Context, req function.RunRequest, resp *function.RunResponse) {
-	var stringParam types.String
-	var variadicParam types.Tuple
-	resp.Error = req.Arguments.Get(ctx, &stringParam, &variadicParam)
+	var dynValues []types.Dynamic
+	resp.Error = req.Arguments.Get(ctx, &dynValues)
 	if resp.Error != nil {
 		return
 	}
 
 	var valueTypes []string
 	// Grab all the concrete values of the variadic element
-	for _, value := range variadicParam.Elements() {
-		dynValue, ok := value.(types.Dynamic)
-		if !ok {
+	for _, dynValue := range dynValues {
+		if dynValue.IsNull() || dynValue.IsUnknown() {
 			continue
+		}
+
+		switch dynValue.UnderlyingValue().(type) {
+		case types.String:
+			// Handle string
+		case types.List:
+			// Handle list
 		}
 
 		valueTypes = append(valueTypes, dynValue.UnderlyingValue().Type(ctx).String())
 	}
 
 	returnVal := types.StringValue(
-		fmt.Sprintf("param1: %s, varparam: [%s]", stringParam.Type(ctx), strings.Join(valueTypes, ", ")),
+		fmt.Sprintf("varparam: [%s]", strings.Join(valueTypes, ", ")),
 	)
 
 	resp.Error = resp.Result.Set(ctx, returnVal)
