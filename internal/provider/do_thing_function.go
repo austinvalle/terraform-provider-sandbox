@@ -24,6 +24,7 @@ func (f *DoThingFunction) Metadata(ctx context.Context, req function.MetadataReq
 func (f *DoThingFunction) Definition(ctx context.Context, req function.DefinitionRequest, resp *function.DefinitionResponse) {
 	resp.Definition = function.Definition{
 		VariadicParameter: function.DynamicParameter{
+			Name:           "varparam",
 			AllowNullValue: true,
 		},
 		Return: function.StringReturn{},
