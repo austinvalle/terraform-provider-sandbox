@@ -3,11 +3,8 @@ package provider
 import (
 	"context"
 
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/dynamicplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -20,11 +17,7 @@ func NewThingResource() resource.Resource {
 type thingResource struct{}
 
 type thingResourceModel struct {
-	Dynamic         types.Dynamic `tfsdk:"dynamic"`
-	DynamicComputed types.Dynamic `tfsdk:"dynamic_computed"`
-
-	StaticObj  types.Object `tfsdk:"static_obj"`
-	StaticList types.List   `tfsdk:"static_list"`
+	SetNestedBlock types.Set `tfsdk:"set_nested_block"`
 }
 
 func (r *thingResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -33,25 +26,16 @@ func (r *thingResource) Metadata(ctx context.Context, req resource.MetadataReque
 
 func (r *thingResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"dynamic": schema.DynamicAttribute{
-				Optional: true,
-			},
-			"dynamic_computed": schema.DynamicAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.Dynamic{
-					dynamicplanmodifier.UseStateForUnknown(),
+		Blocks: map[string]schema.Block{
+			"set_nested_block": schema.SetNestedBlock{
+				NestedObject: schema.NestedBlockObject{
+					Attributes: map[string]schema.Attribute{
+						"sensitive_str": schema.StringAttribute{
+							Optional:  true,
+							Sensitive: true,
+						},
+					},
 				},
-			},
-			"static_obj": schema.ObjectAttribute{
-				AttributeTypes: map[string]attr.Type{
-					"dynamic": types.DynamicType,
-				},
-				Optional: true,
-			},
-			"static_list": schema.ListAttribute{
-				ElementType: types.StringType,
-				Optional:    true,
 			},
 		},
 	}
@@ -65,20 +49,6 @@ func (r *thingResource) Create(ctx context.Context, req resource.CreateRequest, 
 		return
 	}
 
-	// Set the computed attribute to a list of numbers
-	data.DynamicComputed = types.DynamicValue(
-		types.ListValueMust(
-			types.Int64Type,
-			[]attr.Value{
-				types.Int64Value(1),
-				types.Int64Value(2),
-				types.Int64Value(3),
-				types.Int64Value(4),
-				types.Int64Value(5),
-			},
-		),
-	)
-
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -89,24 +59,6 @@ func (r *thingResource) Read(ctx context.Context, req resource.ReadRequest, resp
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
-	// Refresh the computed attribute from a list of number to a boolean
-	//
-	// This is totally valid on a refresh! (╯°□°)╯︵ ┻━┻
-	// - Things like this could break a config :(
-	// data.DynamicComputed = types.DynamicValue(types.BoolValue(true))
-
-	// data.DynamicComputed = types.DynamicValue(
-	// 	types.SetValueMust(
-	// 		types.Int64Type,
-	// 		[]attr.Value{
-	// 			types.Int64Value(1),
-	// 			types.Int64Value(2),
-	// 			types.Int64Value(3),
-	// 			types.Int64Value(4),
-	// 		},
-	// 	),
-	// )
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
