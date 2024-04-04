@@ -3,8 +3,12 @@ package provider
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -17,7 +21,9 @@ func NewThingResource() resource.Resource {
 type thingResource struct{}
 
 type thingResourceModel struct {
-	SetNestedBlock types.Set `tfsdk:"set_nested_block"`
+	Id     types.String `tfsdk:"id"`
+	Name   types.String `tfsdk:"name"`
+	Cities types.Object `tfsdk:"cities"`
 }
 
 func (r *thingResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -26,14 +32,31 @@ func (r *thingResource) Metadata(ctx context.Context, req resource.MetadataReque
 
 func (r *thingResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Blocks: map[string]schema.Block{
-			"set_nested_block": schema.SetNestedBlock{
-				NestedObject: schema.NestedBlockObject{
-					Attributes: map[string]schema.Attribute{
-						"sensitive_str": schema.StringAttribute{
-							Optional:  true,
-							Sensitive: true,
+		Attributes: map[string]schema.Attribute{
+			"id": schema.StringAttribute{
+				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"name": schema.StringAttribute{
+				Required: true,
+			},
+			"cities": schema.SingleNestedAttribute{
+				Required: true,
+				PlanModifiers: []planmodifier.Object{
+					objectplanmodifier.UseStateForUnknown(),
+					objectplanmodifier.RequiresReplace(),
+				},
+				Attributes: map[string]schema.Attribute{
+					"season": schema.StringAttribute{
+						Required: true,
+					},
+					"computed": schema.StringAttribute{
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.UseStateForUnknown(),
 						},
+						Computed: true,
 					},
 				},
 			},
@@ -49,7 +72,14 @@ func (r *thingResource) Create(ctx context.Context, req resource.CreateRequest, 
 		return
 	}
 
+	// Set the plan to state (config values will be known, computed values will be unknown)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+
+	// Set computed ID to known value
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), "123")...)
+
+	// Set computed ID to known value
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("cities").AtName("computed"), "true")...)
 }
 
 func (r *thingResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {

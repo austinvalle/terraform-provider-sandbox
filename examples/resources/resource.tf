@@ -7,8 +7,9 @@ terraform {
 }
 
 resource "examplecloud_thing" "test" {
-  set_nested_block {
-    sensitive_str = "hello world.... but don't tell anyone"
+  name = "john"
+  cities = {
+    season = "spring"
   }
 }
 
