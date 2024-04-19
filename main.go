@@ -6,7 +6,11 @@ import (
 	"log"
 
 	"github.com/austinvalle/terraform-provider-sandbox/internal/provider"
+	"github.com/austinvalle/terraform-provider-sandbox/internal/sdkprovider"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
+	"github.com/hashicorp/terraform-plugin-go/tfprotov5"
+	"github.com/hashicorp/terraform-plugin-go/tfprotov5/tf5server"
+	"github.com/hashicorp/terraform-plugin-mux/tf5muxserver"
 )
 
 // Run "go generate" to format example terraform files and generate the docs for the registry/website
@@ -27,11 +31,32 @@ func main() {
 
 	addr := "registry.terraform.io/austinvalle/sandbox"
 
-	err := providerserver.Serve(context.Background(), provider.New(), providerserver.ServeOpts{
-		Address: addr,
-		Debug:   debug,
-	})
+	// err := providerserver.Serve(context.Background(), provider.New(), providerserver.ServeOpts{
+	// 	Address: addr,
+	// 	Debug:   debug,
+	// })
+	// if err != nil {
+	// 	log.Fatal(err.Error())
+	// }
+
+	providers := []func() tfprotov5.ProviderServer{
+		providerserver.NewProtocol5(provider.New()()),
+		sdkprovider.New().GRPCProvider,
+	}
+
+	muxServer, err := tf5muxserver.NewMuxServer(context.Background(), providers...)
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Fatalf("unable to create provider: %s", err)
+	}
+
+	var serveOpts []tf5server.ServeOpt
+
+	if debug {
+		serveOpts = append(serveOpts, tf5server.WithManagedDebug())
+	}
+
+	err = tf5server.Serve(addr, muxServer.ProviderServer, serveOpts...)
+	if err != nil {
+		log.Fatalf("unable to serve provider: %s", err)
 	}
 }
