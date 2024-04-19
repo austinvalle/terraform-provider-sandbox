@@ -6,12 +6,19 @@ terraform {
   }
 }
 
-# resource "examplecloud_thing" "test" {
-#   # Terraform will receive the type constraint as "list(dynamic)"
-#   # Resulting in the final type determination here as "list(string)"
-#   list_with_dynamics = ["hello", "world", true, 123, null]
-# }
-
-resource "examplecloud_sdkv2_thing" "test" {
-  name = "test"
+resource "random_string" "str" {
+  length = 5
 }
+
+provider "examplecloud" {
+  # Unknown until after the first apply!
+  api_key = random_string.str.result
+}
+
+# Will defer until the provider configuration is fully known!
+resource "examplecloud_sdkv2_thing" "test" {
+  name = data.examplecloud_sdkv2_thing.test.name
+}
+
+# Will defer until the provider configuration is fully known!
+data "examplecloud_sdkv2_thing" "test" {}

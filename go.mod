@@ -4,17 +4,13 @@ go 1.21
 
 toolchain go1.21.4
 
-replace github.com/hashicorp/terraform-plugin-framework => /Users/austin.valle/code/terraform-plugin-framework
-
-replace github.com/hashicorp/terraform-plugin-sdk/v2 => /Users/austin.valle/code/terraform-plugin-sdk
-
 require (
 	github.com/hashicorp/terraform-json v0.21.0
 	github.com/hashicorp/terraform-plugin-docs v0.19.0
 	github.com/hashicorp/terraform-plugin-framework v1.7.0
 	github.com/hashicorp/terraform-plugin-go v0.22.3-0.20240419152848-9a1607db1cab
 	github.com/hashicorp/terraform-plugin-mux v0.15.0
-	github.com/hashicorp/terraform-plugin-sdk/v2 v2.33.0
+	github.com/hashicorp/terraform-plugin-sdk/v2 v2.33.1-0.20240419200307-d9c69932e767
 	github.com/hashicorp/terraform-plugin-testing v1.7.0
 	github.com/zclconf/go-cty v1.14.4
 )
