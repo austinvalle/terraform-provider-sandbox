@@ -43,7 +43,7 @@ func resourceThing() *schema.Resource {
 		// If the size is invalid, an error diagnostic will be displayed, rather than a deferral and an eventual diagnostic (on a later round).
 		ResourceBehavior: schema.ResourceBehavior{
 			ProviderDeferral: schema.ProviderDeferralBehavior{
-				EnableCustomizeDiff: true,
+				EnablePlanModification: true,
 			},
 		},
 	}

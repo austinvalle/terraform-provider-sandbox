@@ -26,7 +26,7 @@ func New() *schema.Provider {
 		ResourcesMap: map[string]*schema.Resource{
 			"examplecloud_sdkv2_thing": resourceThing(),
 		},
-		ConfigureProvider: func(ctx context.Context, req schema.ConfigureRequest, resp *schema.ConfigureResponse) {
+		ConfigureProvider: func(ctx context.Context, req schema.ConfigureProviderRequest, resp *schema.ConfigureProviderResponse) {
 			providerConfig := req.ResourceData.GetRawConfig()
 
 			if providerConfig.IsWhollyKnown() {
