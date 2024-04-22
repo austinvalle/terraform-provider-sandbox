@@ -3,8 +3,10 @@ package sdkprovider
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -19,6 +21,29 @@ func resourceThing() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
+			},
+			"size": {
+				Type:     schema.TypeInt,
+				Required: true,
+			},
+		},
+
+		CustomizeDiff: customdiff.All(
+			customdiff.ValidateChange("size", func(ctx context.Context, oldVal, newVal, meta any) error {
+				if newVal.(int) > 100 { //nolint
+					return fmt.Errorf("size value must be less than 100")
+				}
+				return nil
+			}),
+		),
+
+		// This allows CustomizeDiff to be called even if a deferral response will be returned.
+		//
+		// In the case of "size", it will validate that the value is < 100 and return an error even if a deferral is returned.
+		// If the size is invalid, an error diagnostic will be displayed, rather than a deferral and an eventual diagnostic (on a later round).
+		ResourceBehavior: schema.ResourceBehavior{
+			ProviderDeferral: schema.ProviderDeferralBehavior{
+				EnableCustomizeDiff: true,
 			},
 		},
 	}

@@ -18,6 +18,7 @@ provider "examplecloud" {
 # Will defer until the provider configuration is fully known!
 resource "examplecloud_sdkv2_thing" "test" {
   name = data.examplecloud_sdkv2_thing.test.name
+  size = 99
 }
 
 # Will defer until the provider configuration is fully known!
