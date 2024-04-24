@@ -39,7 +39,7 @@ func New() *schema.Provider {
 			}
 
 			if !req.DeferralAllowed {
-				resp.Diagnostics = diag.FromErr(errors.New("provider configuration is unknown and deferral is not allowed!"))
+				resp.Diagnostics = diag.FromErr(errors.New("sandbox provider configuration is unknown and deferral is not allowed!"))
 				return
 			}
 

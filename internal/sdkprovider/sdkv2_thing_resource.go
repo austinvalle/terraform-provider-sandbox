@@ -26,6 +26,11 @@ func resourceThing() *schema.Resource {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
+			"default_str": {
+				Default:  "hello there!",
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 
 		CustomizeDiff: customdiff.All(
