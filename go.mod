@@ -4,14 +4,16 @@ go 1.21
 
 toolchain go1.21.4
 
+replace github.com/hashicorp/terraform-plugin-sdk/v2 => /Users/austin.valle/code/terraform-plugin-sdk
+
 require (
-	github.com/hashicorp/terraform-json v0.21.0
+	github.com/hashicorp/terraform-json v0.21.1-0.20240426182256-aa6b5af6a6ac
 	github.com/hashicorp/terraform-plugin-docs v0.19.0
 	github.com/hashicorp/terraform-plugin-framework v1.8.0
 	github.com/hashicorp/terraform-plugin-go v0.22.3-0.20240424182422-dba624001d4f
 	github.com/hashicorp/terraform-plugin-mux v0.15.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.33.1-0.20240424193833-fe1ea3100ce3
-	github.com/hashicorp/terraform-plugin-testing v1.7.0
+	github.com/hashicorp/terraform-plugin-testing v1.7.1-0.20240426185321-8048f680fbdd
 	github.com/zclconf/go-cty v1.14.4
 )
 
@@ -39,7 +41,7 @@ require (
 	github.com/hashicorp/go-checkpoint v0.5.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-cty v1.4.1-0.20200414143053-d3edf31b6320 // indirect
-	github.com/hashicorp/go-hclog v1.6.2 // indirect
+	github.com/hashicorp/go-hclog v1.6.3 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/go-plugin v1.6.0 // indirect
 	github.com/hashicorp/go-uuid v1.0.3 // indirect
@@ -47,7 +49,7 @@ require (
 	github.com/hashicorp/hc-install v0.6.4 // indirect
 	github.com/hashicorp/hcl/v2 v2.20.1 // indirect
 	github.com/hashicorp/logutils v1.0.0 // indirect
-	github.com/hashicorp/terraform-exec v0.20.0 // indirect
+	github.com/hashicorp/terraform-exec v0.20.1-0.20240426181105-399b96b1d2ec // indirect
 	github.com/hashicorp/terraform-plugin-log v0.9.0 // indirect
 	github.com/hashicorp/terraform-registry-address v0.2.3 // indirect
 	github.com/hashicorp/terraform-svchost v0.1.1 // indirect
