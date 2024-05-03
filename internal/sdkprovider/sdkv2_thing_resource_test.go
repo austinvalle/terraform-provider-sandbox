@@ -3,18 +3,28 @@ package sdkprovider
 import (
 	"testing"
 
-	"github.com/hashicorp/terraform-exec/tfexec"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov5"
-	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	r "github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/knownvalue"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/statecheck"
 	"github.com/hashicorp/terraform-plugin-testing/tfjsonpath"
+	"github.com/hashicorp/terraform-plugin-testing/tfversion"
 )
 
 func TestSDKv2ThingResource_DeferredAction(t *testing.T) {
-	resource.UnitTest(t, resource.TestCase{
-		ExternalProviders: map[string]resource.ExternalProvider{
+	r.UnitTest(t, r.TestCase{
+		// Deferred action support is only available in 1.9 alpha binaries (or dev builds)
+		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
+			tfversion.SkipBelow(tfversion.Version1_9_0),
+			tfversion.SkipIfNotPrerelease(),
+		},
+		// Add the -allow-deferral flag
+		AdditionalCLIOptions: &r.AdditionalCLIOptions{
+			Apply: r.ApplyOptions{AllowDeferral: true},
+			Plan:  r.PlanOptions{AllowDeferral: true},
+		},
+		ExternalProviders: map[string]r.ExternalProvider{
 			"random": {
 				Source: "registry.terraform.io/hashicorp/random",
 			},
@@ -24,23 +34,23 @@ func TestSDKv2ThingResource_DeferredAction(t *testing.T) {
 				return New().GRPCProvider(), nil
 			},
 		},
-		Steps: []resource.TestStep{
+		Steps: []r.TestStep{
 			{
-				AdditionalCLIFlags: allowDeferralFlags(),
-				Config:             configWithDeferredResource(),
-				ConfigPlanChecks: resource.ConfigPlanChecks{
+				Config: configWithDeferredResource(),
+				ConfigPlanChecks: r.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
-						plancheck.ExpectDeferredReason("examplecloud_sdkv2_thing.test", plancheck.DeferredReasonProviderConfigUnknown),
+						// Check the exact reason the resource was deferred, for SDKv2 resources, this will always be provider config unknown
+						plancheck.ExpectDeferredChange("examplecloud_sdkv2_thing.test", plancheck.DeferredReasonProviderConfigUnknown),
 					},
 				},
 				// The refresh plan will always have changes because of the deferred action (╯°□°)╯︵ ┻━┻
 				ExpectNonEmptyPlan: true,
 			},
 			{
-				AdditionalCLIFlags: allowDeferralFlags(),
-				Config:             configWithDeferredResource(),
-				ConfigPlanChecks: resource.ConfigPlanChecks{
+				Config: configWithDeferredResource(),
+				ConfigPlanChecks: r.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
+						// Ensure there are no more deferred changes
 						plancheck.ExpectNoDeferredChanges(),
 					},
 				},
@@ -69,15 +79,4 @@ func configWithDeferredResource() string {
 	
 	data "examplecloud_sdkv2_thing" "test" {}
 	`
-}
-
-func allowDeferralFlags() resource.AdditionalCLIFlags {
-	return resource.AdditionalCLIFlags{
-		Apply: []tfexec.ApplyOption{
-			tfexec.AllowDeferral(true),
-		},
-		Plan: []tfexec.PlanOption{
-			tfexec.AllowDeferral(true),
-		},
-	}
 }
