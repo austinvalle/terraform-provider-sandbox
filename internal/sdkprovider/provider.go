@@ -44,8 +44,8 @@ func New() *schema.Provider {
 			}
 
 			// Provider configuration is unknown, defer all resources and data sources
-			resp.DeferralResponse = &schema.DeferralResponse{
-				Reason: schema.DeferralReasonProviderConfigUnknown,
+			resp.Deferred = &schema.Deferred{
+				Reason: schema.DeferredReasonProviderConfigUnknown,
 			}
 		},
 	}

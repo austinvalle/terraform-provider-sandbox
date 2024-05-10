@@ -47,7 +47,7 @@ func resourceThing() *schema.Resource {
 		// In the case of "size", it will validate that the value is < 100 and return an error even if a deferral is returned.
 		// If the size is invalid, an error diagnostic will be displayed, rather than a deferral and an eventual diagnostic (on a later round).
 		ResourceBehavior: schema.ResourceBehavior{
-			ProviderDeferral: schema.ProviderDeferralBehavior{
+			ProviderDeferred: schema.ProviderDeferredBehavior{
 				EnablePlanModification: true,
 			},
 		},

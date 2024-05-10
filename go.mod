@@ -10,10 +10,10 @@ require (
 	github.com/hashicorp/terraform-json v0.21.1-0.20240502194054-3b8a921d9133
 	github.com/hashicorp/terraform-plugin-docs v0.19.0
 	github.com/hashicorp/terraform-plugin-framework v1.8.0
-	github.com/hashicorp/terraform-plugin-go v0.22.3-0.20240503133000-f7070c19a38c
+	github.com/hashicorp/terraform-plugin-go v0.23.0
 	github.com/hashicorp/terraform-plugin-mux v0.15.0
-	github.com/hashicorp/terraform-plugin-sdk/v2 v2.33.1-0.20240503205431-bf74443fe6c7
-	github.com/hashicorp/terraform-plugin-testing v1.7.1-0.20240503202442-809a5b07cbea
+	github.com/hashicorp/terraform-plugin-sdk/v2 v2.33.1-0.20240510142555-470473db8076
+	github.com/hashicorp/terraform-plugin-testing v1.7.1-0.20240506213353-0d6d1dc57119
 	github.com/zclconf/go-cty v1.14.4
 )
 
@@ -74,12 +74,12 @@ require (
 	github.com/yuin/goldmark v1.7.0 // indirect
 	github.com/yuin/goldmark-meta v1.1.0 // indirect
 	go.abhg.dev/goldmark/frontmatter v0.2.0 // indirect
-	golang.org/x/crypto v0.22.0 // indirect
+	golang.org/x/crypto v0.23.0 // indirect
 	golang.org/x/exp v0.0.0-20230626212559-97b1e661b5df // indirect
 	golang.org/x/mod v0.16.0 // indirect
 	golang.org/x/net v0.23.0 // indirect
-	golang.org/x/sys v0.19.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/sys v0.20.0 // indirect
+	golang.org/x/text v0.15.0 // indirect
 	golang.org/x/tools v0.13.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/grpc v1.63.2 // indirect
