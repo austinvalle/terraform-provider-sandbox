@@ -7,13 +7,13 @@ toolchain go1.21.4
 replace github.com/hashicorp/terraform-plugin-sdk/v2 => /Users/austin.valle/code/terraform-plugin-sdk
 
 require (
-	github.com/hashicorp/terraform-json v0.21.1-0.20240502194054-3b8a921d9133
+	github.com/hashicorp/terraform-json v0.22.1
 	github.com/hashicorp/terraform-plugin-docs v0.19.0
 	github.com/hashicorp/terraform-plugin-framework v1.8.0
 	github.com/hashicorp/terraform-plugin-go v0.23.0
 	github.com/hashicorp/terraform-plugin-mux v0.15.0
-	github.com/hashicorp/terraform-plugin-sdk/v2 v2.33.1-0.20240510142555-470473db8076
-	github.com/hashicorp/terraform-plugin-testing v1.7.1-0.20240506213353-0d6d1dc57119
+	github.com/hashicorp/terraform-plugin-sdk/v2 v2.34.0
+	github.com/hashicorp/terraform-plugin-testing v1.8.0
 	github.com/zclconf/go-cty v1.14.4
 )
 
@@ -49,7 +49,7 @@ require (
 	github.com/hashicorp/hc-install v0.6.4 // indirect
 	github.com/hashicorp/hcl/v2 v2.20.1 // indirect
 	github.com/hashicorp/logutils v1.0.0 // indirect
-	github.com/hashicorp/terraform-exec v0.20.1-0.20240501214311-a1abb29f777f // indirect
+	github.com/hashicorp/terraform-exec v0.21.0 // indirect
 	github.com/hashicorp/terraform-plugin-log v0.9.0 // indirect
 	github.com/hashicorp/terraform-registry-address v0.2.3 // indirect
 	github.com/hashicorp/terraform-svchost v0.1.1 // indirect
