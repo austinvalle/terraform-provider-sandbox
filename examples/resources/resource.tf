@@ -5,9 +5,11 @@ terraform {
     }
   }
 }
+resource "random_string" "a" {
+  length = 10
+}
 
 resource "examplecloud_thing" "test" {
-  # Terraform will receive the type constraint as "list(dynamic)"
-  # Resulting in the final type determination here as "list(string)"
-  list_with_dynamics = ["hello", "world", true, 123, null]
+  str_value  = random_string.a.result
+  max_length = 5
 }

@@ -2,13 +2,16 @@ package provider
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/austinvalle/terraform-provider-sandbox/internal/xtypes"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 var _ resource.Resource = (*thingResource)(nil)
+var _ resource.ResourceWithValidateConfig = (*thingResource)(nil)
 
 func NewThingResource() resource.Resource {
 	return &thingResource{}
@@ -17,7 +20,8 @@ func NewThingResource() resource.Resource {
 type thingResource struct{}
 
 type thingResourceModel struct {
-	ListWithDynamics xtypes.DynamicList `tfsdk:"list_with_dynamics"`
+	StrValue  types.String `tfsdk:"str_value"`
+	MaxLength types.Int64  `tfsdk:"max_length"`
 }
 
 func (r *thingResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -27,11 +31,36 @@ func (r *thingResource) Metadata(ctx context.Context, req resource.MetadataReque
 func (r *thingResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"list_with_dynamics": schema.ListAttribute{
-				Required:   true,
-				CustomType: xtypes.DynamicListType{},
+			"str_value": schema.StringAttribute{
+				Required: true,
+			},
+			"max_length": schema.Int64Attribute{
+				Required: true,
 			},
 		},
+	}
+}
+
+func (r *thingResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var data thingResourceModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// No need to validate if str_value or max_length are null/unknown
+	if data.StrValue.IsNull() || data.StrValue.IsUnknown() ||
+		data.MaxLength.IsNull() || data.MaxLength.IsUnknown() {
+		return
+	}
+
+	if len(data.StrValue.ValueString()) > int(data.MaxLength.ValueInt64()) {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("str_value"),
+			"Invalid Length",
+			fmt.Sprintf("string length must be less then %d", data.MaxLength.ValueInt64()),
+		)
 	}
 }
 
