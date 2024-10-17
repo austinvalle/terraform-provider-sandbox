@@ -5,11 +5,22 @@ terraform {
     }
   }
 }
-resource "random_string" "a" {
-  length = 10
+
+# resource "random_string" "old" {
+#   length = 12
+# }
+
+resource "examplecloud_thing" "this" {
+  email = "austin.valle@hashicorp.com"
+  name  = "Austin Valle"
+  age   = 32
 }
 
-resource "examplecloud_thing" "test" {
-  str_value  = random_string.a.result
-  max_length = 5
+output "ex" {
+  value = provider::examplecloud::do_thing("AB", ["hey", "oh", "no"])
 }
+
+# moved {
+#   from = random_string.old
+#   to   = examplecloud_thing.new
+# }
