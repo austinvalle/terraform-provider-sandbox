@@ -6,10 +6,15 @@ require (
 	github.com/hashicorp/terraform-json v0.22.1
 	github.com/hashicorp/terraform-plugin-docs v0.19.4
 	github.com/hashicorp/terraform-plugin-framework v1.12.0
+	github.com/hashicorp/terraform-plugin-framework-validators v0.13.0
 	github.com/hashicorp/terraform-plugin-go v0.24.0
 	github.com/hashicorp/terraform-plugin-testing v1.9.0
 	github.com/zclconf/go-cty v1.14.4
 )
+
+replace github.com/hashicorp/terraform-plugin-framework => /Users/austin.valle/code/terraform-plugin-framework
+
+replace github.com/hashicorp/terraform-plugin-framework-validators => /Users/austin.valle/code/terraform-plugin-framework-validators
 
 require google.golang.org/genproto/googleapis/rpc v0.0.0-20240604185151-ef581f913117 // indirect
 

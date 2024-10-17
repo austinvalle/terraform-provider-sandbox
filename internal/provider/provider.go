@@ -47,5 +47,7 @@ func (p *sandboxProvider) Resources(ctx context.Context) []func() resource.Resou
 }
 
 func (p *sandboxProvider) Functions(ctx context.Context) []func() function.Function {
-	return []func() function.Function{}
+	return []func() function.Function{
+		NewDoThingFunction,
+	}
 }
