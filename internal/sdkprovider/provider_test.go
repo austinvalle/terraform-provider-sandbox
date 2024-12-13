@@ -67,6 +67,28 @@ func TestProvider_Unset(t *testing.T) {
 	})
 }
 
+func TestProvider_NoProviderConfig(t *testing.T) {
+	t.Parallel()
+
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV5ProviderFactories: providerFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: `
+				resource "examplecloud_sdkv2_thing" "test" {}
+				`,
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(
+						"examplecloud_sdkv2_thing.test",
+						tfjsonpath.New("computed_attr"),
+						knownvalue.StringExact("The value passed into the provider config was true"),
+					),
+				},
+			},
+		},
+	})
+}
+
 func TestProvider_ExplictlySetToFalse(t *testing.T) {
 	t.Parallel()
 
