@@ -6,6 +6,10 @@ terraform {
   }
 }
 
-resource "examplecloud_thing" "this" {
-  # name = "config val"
+provider "examplecloud" {
+  set_namespace_from_token = false
+}
+
+resource "examplecloud_sdkv2_thing" "test" {
+  trigger = "a"
 }
