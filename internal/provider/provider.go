@@ -37,7 +37,9 @@ func (p *sandboxProvider) Metadata(ctx context.Context, req provider.MetadataReq
 }
 
 func (p *sandboxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
-	return []func() datasource.DataSource{}
+	return []func() datasource.DataSource{
+		NewThingDataSource,
+	}
 }
 
 func (p *sandboxProvider) Resources(ctx context.Context) []func() resource.Resource {

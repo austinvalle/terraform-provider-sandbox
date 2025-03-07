@@ -1,10 +1,12 @@
 package sdkprovider_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/austinvalle/terraform-provider-sandbox/internal/sdkprovider"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov5"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/knownvalue"
 	"github.com/hashicorp/terraform-plugin-testing/statecheck"
@@ -41,6 +43,20 @@ func TestProvider_ExplictlySetToTrue(t *testing.T) {
 			},
 		},
 	})
+}
+func TestProvider_ConfigureStuff(t *testing.T) {
+	t.Parallel()
+
+	rd := schema.TestResourceDataRaw(t, map[string]*schema.Schema{
+		"set_namespace_from_token": {
+			Type:     schema.TypeBool,
+			Optional: true,
+			// Default: true,
+		},
+	},
+		map[string]interface{}{})
+
+	sdkprovider.ConfigureStuff(context.Background(), rd)
 }
 
 func TestProvider_Unset(t *testing.T) {

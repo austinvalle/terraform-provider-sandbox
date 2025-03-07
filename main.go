@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"flag"
+	"log"
 
-	"github.com/austinvalle/terraform-provider-sandbox/internal/sdkprovider"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
+	"github.com/austinvalle/terraform-provider-sandbox/internal/provider"
+	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 )
 
 // Run "go generate" to format example terraform files and generate the docs for the registry/website
@@ -25,17 +27,17 @@ func main() {
 
 	addr := "registry.terraform.io/austinvalle/sandbox"
 
-	plugin.Serve(&plugin.ServeOpts{
-		Debug:        debug,
-		ProviderAddr: addr,
-		ProviderFunc: sdkprovider.New(),
-	})
-
-	// err := providerserver.Serve(context.Background(), provider.New(), providerserver.ServeOpts{
-	// 	Address: addr,
-	// 	Debug:   debug,
+	// plugin.Serve(&plugin.ServeOpts{
+	// 	Debug:        debug,
+	// 	ProviderAddr: addr,
+	// 	ProviderFunc: sdkprovider.New(),
 	// })
-	// if err != nil {
-	// 	log.Fatal(err.Error())
-	// }
+
+	err := providerserver.Serve(context.Background(), provider.New(), providerserver.ServeOpts{
+		Address: addr,
+		Debug:   debug,
+	})
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 }
