@@ -7,7 +7,9 @@ terraform {
 }
 
 resource "examplecloud_thing" "test" {
-  case_insensitive_string = "test" // modifying the case of this string shouldn't update the resource
+  attr_one = "hellos"
+}
 
-  # case_insensitive_string = "TEST"
+output "test" {
+  value = "${examplecloud_thing.test.attr_one} ${examplecloud_thing.test.attr_two}"
 }

@@ -1,0 +1,122 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../terraform"
+		},
+		{
+			"path": "../terraform-plugin-framework"
+		}
+	],
+	"launch": {
+		"version": "0.2.0",
+		"compounds": [
+			{
+				"name": "Debug Plan (TF + Provider)",
+				"configurations": [
+					"(internal) Debug Provider only",
+					"(internal) Debug Terraform Plan only (with reattach file)"
+				]
+			},
+			{
+				"name": "Debug Apply (TF + Provider)",
+				"configurations": [
+					"(internal) Debug Provider only",
+					"(internal) Debug Terraform Apply only (with reattach file)"
+				]
+			},
+			{
+				"name": "Debug Destroy (TF + Provider)",
+				"configurations": [
+					"(internal) Debug Provider only",
+					"(internal) Debug Terraform Destroy only (with reattach file)"
+				]
+			}
+		],
+		"configurations": [
+			{
+				"name": "(internal) Debug Provider only",
+				"type": "go",
+				"request": "launch",
+				"mode": "debug",
+				"args": [
+					"-debug",
+					"-debug-env-file=${workspaceFolder:terraform-provider-sandbox}/tf_reattach.env",
+				],
+				"program": "${workspaceFolder:terraform-provider-sandbox}",
+				"postDebugTask": "Cleanup tf_reattach.env",
+				"showLog": false // dlv's logs
+			},
+			{
+				"name": "(internal) Debug Terraform Plan only (with reattach file)",
+				"type": "go",
+				"request": "launch",
+				"mode": "debug",
+				"program": "${workspaceFolder:terraform}",
+				"args": [
+					"-chdir=${workspaceFolder:terraform-provider-sandbox}",
+					"plan",
+				],
+				"envFile": "${workspaceFolder:terraform-provider-sandbox}/tf_reattach.env",
+				"console": "integratedTerminal",
+				"preLaunchTask": "Wait for tfreattach.env",
+				"showLog": false // dlv's logs
+			},
+			{
+				"name": "(internal) Debug Terraform Apply only (with reattach file)",
+				"type": "go",
+				"request": "launch",
+				"mode": "debug",
+				"program": "${workspaceFolder:terraform}",
+				"args": [
+					"-chdir=${workspaceFolder:terraform-provider-sandbox}",
+					"apply",
+				],
+				"envFile": "${workspaceFolder:terraform-provider-sandbox}/tf_reattach.env",
+				"console": "integratedTerminal",
+				"preLaunchTask": "Wait for tfreattach.env",
+				"showLog": false // dlv's logs
+			},
+			{
+				"name": "(internal) Debug Terraform Destroy only (with reattach file)",
+				"type": "go",
+				"request": "launch",
+				"mode": "debug",
+				"program": "${workspaceFolder:terraform}",
+				"args": [
+					"-chdir=${workspaceFolder:terraform-provider-sandbox}",
+					"destroy",
+				],
+				"envFile": "${workspaceFolder:terraform-provider-sandbox}/tf_reattach.env",
+				"console": "integratedTerminal",
+				"preLaunchTask": "Wait for tfreattach.env",
+				"showLog": false // dlv's logs
+			},
+		],
+	},
+	"tasks": {
+		"version": "2.0.0",
+		"tasks": [
+			{
+				"label": "Wait for tfreattach.env",
+				"detail": "Waits 5s until the provider is ready and wrote the reattach file.",
+				"type": "shell",
+				"command": "sleep 5;",
+				"presentation": {
+					"reveal": "never"
+				}
+			},
+			{
+				"label": "Cleanup tf_reattach.env",
+				"detail": "Removes the reattach file to prevent trying to reattach to a stopped provider.",
+				"type": "shell",
+				"command": "rm -f ${workspaceFolder:terraform-provider-sandbox}/tf_reattach.env",
+				"presentation": {
+					"reveal": "never"
+				}
+			}
+		]
+	}
+}

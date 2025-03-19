@@ -1,12 +1,12 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"log"
 
 	"github.com/austinvalle/terraform-provider-sandbox/internal/provider"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
+	"github.com/hashicorp/terraform-plugin-go/tfprotov5/tf5server"
 )
 
 // Run "go generate" to format example terraform files and generate the docs for the registry/website
@@ -20,12 +20,9 @@ import (
 //go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs --provider-name=examplecloud
 
 func main() {
-	var debug bool
-
-	flag.BoolVar(&debug, "debug", false, "set to true to run the provider with support for debuggers like delve")
+	debugFlag := flag.Bool("debug", false, "Start provider in debug mode.")
+	debugEnvFilePath := flag.String("debug-env-file", "", "Path to the debug environment file to which reattach config gets written.")
 	flag.Parse()
-
-	addr := "registry.terraform.io/austinvalle/sandbox"
 
 	// plugin.Serve(&plugin.ServeOpts{
 	// 	Debug:        debug,
@@ -33,10 +30,31 @@ func main() {
 	// 	ProviderFunc: sdkprovider.New(),
 	// })
 
-	err := providerserver.Serve(context.Background(), provider.New(), providerserver.ServeOpts{
-		Address: addr,
-		Debug:   debug,
-	})
+	var serveOpts []tf5server.ServeOpt
+
+	if *debugFlag {
+		serveOpts = append(
+			serveOpts,
+			tf5server.WithManagedDebug(),
+		)
+	}
+
+	if *debugEnvFilePath != "" {
+		if !*debugFlag {
+			log.Fatalf("debug environment file path provided without debug flag, please also set -debug")
+		}
+
+		serveOpts = append(
+			serveOpts,
+			tf5server.WithManagedDebugEnvFilePath(*debugEnvFilePath),
+		)
+	}
+
+	err := tf5server.Serve(
+		"registry.terraform.io/austinvalle/sandbox",
+		providerserver.NewProtocol5(provider.New()()),
+		serveOpts...,
+	)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
