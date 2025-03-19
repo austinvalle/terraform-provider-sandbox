@@ -35,6 +35,7 @@ func (r *thingResource) Schema(ctx context.Context, req resource.SchemaRequest, 
 			"case_insensitive_string": schema.StringAttribute{
 				Required: true,
 				PlanModifiers: []planmodifier.String{
+					// Always takes the prior state value if the plan value (config) is equal w/ case-insensitive compare
 					// https://github.com/oracle/terraform-provider-oci/blob/a50f7729707668d88e51e642178464a1985717ba/internal/service-framework/vault/vault_secret_resource.go#L277-L298
 					modifiers.StringEqualIgnoreCasePlanModifier(),
 				},
@@ -42,6 +43,7 @@ func (r *thingResource) Schema(ctx context.Context, req resource.SchemaRequest, 
 			// Always set state to null
 			"computed_attr_one": schema.StringAttribute{
 				Computed: true,
+				// Un-comment this to fix the issue
 				// PlanModifiers: []planmodifier.String{
 				// 	modifiers.UseStateNoMatterWhatForUnknown(), // option 3
 				// 	// stringplanmodifier.UseStateForUnknown(), // The state value will be null, so this won't work.
