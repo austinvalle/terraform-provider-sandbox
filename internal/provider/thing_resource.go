@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/austinvalle/terraform-provider-sandbox/internal/modifiers"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -43,48 +44,67 @@ func (r *thingResource) Schema(ctx context.Context, req resource.SchemaRequest, 
 			// Always set state to null
 			"computed_attr_one": schema.StringAttribute{
 				Computed: true,
-				// Un-comment this to fix the issue
-				// PlanModifiers: []planmodifier.String{
-				// 	modifiers.UseStateNoMatterWhatForUnknown(), // option 3
-				// 	// stringplanmodifier.UseStateForUnknown(), // The state value will be null, so this won't work.
-				// },
+				PlanModifiers: []planmodifier.String{
+					modifiers.UseStateForUnknown_Fixed(),
+				},
 			},
-			// Always set state to "known value"
+			// Create => "create value"
+			// Update => "update value"
 			"computed_attr_two": schema.StringAttribute{
 				Computed: true,
-				// PlanModifiers: []planmodifier.String{
-				// 	stringplanmodifier.UseStateForUnknown(),
-				// },
+				PlanModifiers: []planmodifier.String{
+					modifiers.UseStateForUnknown_Fixed(),
+				},
 			},
 		},
 	}
 }
 
-// ModifyPlan implements resource.ResourceWithModifyPlan.
+// This ModifyPlan is responsible for
 func (r *thingResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	// Plan = has the computed unknown values set in plan, but the rest of the plan is equal
-	// - computed_attr_one = <unknown>
-	// - computed_attr_two = <unknown>
-	// - case_insensitive_string = "test" (prior state value, was modified from "Test" by "modifiers.StringEqualIgnoreCasePlanModifier()")
+	// Return early if we are deleting (plan is null) or creating (state is null)
+	if req.Plan.Raw.IsNull() || req.State.Raw.IsNull() {
+		return
+	}
 
-	// State = has the correct state values, rest of plan is equal
-	// - computed_attr_one = <null>
-	// - computed_attr_two = "known value"
-	// - case_insensitive_string = "test"
+	// After running all the provider plan modification (include case ignore), if there are no differences/updates, return.
+	if req.Plan.Raw.Equal(req.State.Raw) {
+		return
+	}
 
-	// Desired Plan/State
-	// - computed_attr_one = <null>
-	// - computed_attr_two = "known value"
-	// - case_insensitive_string = "test"
+	// An update is happening, so mark any computed attributes we know could change during apply as unknown
+	resp.Diagnostics.Append(resp.Plan.SetAttribute(ctx, path.Root("computed_attr_two"), types.StringUnknown())...)
 
-	// Option 1. Walk raw plan to check if Plan == State
-	// 		(noop, minus the unknowns that were marked by framework - this could cause problems if the unknowns were marked by the provider itself)
-	//   a. If it's a noop, take the entire prior state (effectively undoing the framework's computed marking)
-	//
-	// Option 2. Blindly mark all computed attributes (with config value of null) as their prior state - bad idea
-	//
-	// Option 3. Add new plan modifier that will carry over null values as well (modifiers.UseStateNoMatterWhatForUnknown())
+	// We know "computed_attr_one" will not change, so we can skip that.
 }
+
+// Wrote a function that can mark any computed value as unknown
+//
+// func MarkComputedAsUnknown(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, attrPath path.Path) diag.Diagnostics {
+// 	var diags diag.Diagnostics
+
+// 	var cfgVal attr.Value
+// 	diags.Append(req.Config.GetAttribute(ctx, attrPath, &cfgVal)...)
+// 	if diags.HasError() {
+// 		return diags
+// 	}
+
+// 	// Has a config value, can't mark as unknown (for example, if the value is optional+computed)
+// 	if !cfgVal.IsNull() {
+// 		return diags
+// 	}
+
+// 	valType := cfgVal.Type(ctx)
+// 	tfType := valType.TerraformType(ctx)
+// 	newUnknownVal, err := valType.ValueFromTerraform(ctx, tftypes.NewValue(tfType, tftypes.UnknownValue))
+// 	if err != nil {
+// 		diags.Append(diag.NewErrorDiagnostic("error creating unknown val", err.Error()))
+// 		return diags
+// 	}
+
+// 	diags.Append(resp.Plan.SetAttribute(ctx, attrPath, newUnknownVal)...)
+// 	return diags
+// }
 
 func (r *thingResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var data thingResourceModel
@@ -95,7 +115,7 @@ func (r *thingResource) Create(ctx context.Context, req resource.CreateRequest, 
 	}
 
 	data.ComputedAttrOne = types.StringNull()
-	data.ComputedAttrTwo = types.StringValue("known value")
+	data.ComputedAttrTwo = types.StringValue("create value")
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, data)...)
 }
@@ -109,7 +129,8 @@ func (r *thingResource) Update(ctx context.Context, req resource.UpdateRequest, 
 	}
 
 	data.ComputedAttrOne = types.StringNull()
-	data.ComputedAttrTwo = types.StringValue("known value")
+
+	data.ComputedAttrTwo = types.StringValue("update value")
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, data)...)
 }
