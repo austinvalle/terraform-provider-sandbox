@@ -1,0 +1,36 @@
+name: Test setup-terraform#518
+
+on: workflow_dispatch
+
+jobs:
+  test:
+    name: Test setup-terraform
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out code
+      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+      with:
+        terraform_wrapper: false
+
+    - name: Run console command
+      working-directory: ./test-tf
+      run: echo "jsonencode(tolist(var.models))" | terraform console
+
+  test-wrapper:
+    name: Test setup-terraform wrapper
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out code
+      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+      with:
+        terraform_wrapper: true
+
+    - name: Run console command
+      working-directory: ./test-tf
+      run: echo "jsonencode(tolist(var.models))" | terraform console
