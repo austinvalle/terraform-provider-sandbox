@@ -7,9 +7,8 @@ terraform {
 }
 
 resource "examplecloud_thing" "test" {
-  attr_one = "hellos"
-}
-
-output "test" {
-  value = "${examplecloud_thing.test.attr_one} ${examplecloud_thing.test.attr_two}"
+  # Causes infinite plans
+  number = 242.08120431461208
+  # Does not cause infinite plans - last digit changed
+  # number =  242.08120431461209
 }

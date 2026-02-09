@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"math/big"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -17,68 +18,82 @@ func NewThingResource() resource.Resource {
 type thingResource struct{}
 
 type thingResourceModel struct {
-	AttrOne   types.String `tfsdk:"attr_one"`
-	AttrTwo   types.String `tfsdk:"attr_two"`
-	AttrThree types.String `tfsdk:"attr_three"`
-}
-
-func (r *thingResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_thing"
+	Number   types.Number `tfsdk:"number"`
+	Computed types.String `tfsdk:"computed"`
 }
 
 func (r *thingResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		Description: "Example resource.",
 		Attributes: map[string]schema.Attribute{
-			"attr_one": schema.StringAttribute{
+			"number": schema.NumberAttribute{
 				Required: true,
 			},
-			"attr_two": schema.StringAttribute{
-				Computed: true,
-			},
-			"attr_three": schema.StringAttribute{
+			"computed": schema.StringAttribute{
 				Computed: true,
 			},
 		},
 	}
 }
 
-func (r *thingResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data thingResourceModel
-
-	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
-	if resp.Diagnostics.HasError() {
-		return
+func parseNumber(str string) types.Number {
+	apiRespBigFloat := new(big.Float)
+	updatedFloat, ok := apiRespBigFloat.SetString(str)
+	if !ok {
+		panic("unable to parse number from string " + str)
 	}
-
-	data.AttrTwo = types.StringValue("attr 2, create")
-	data.AttrThree = types.StringValue("attr 3, create")
-
-	resp.Diagnostics.Append(resp.State.Set(ctx, data)...)
+	return types.NumberValue(updatedFloat)
 }
 
-func (r *thingResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data thingResourceModel
+func planNumberToString(number types.Number) string {
+	// Hardcode to 14 to match example value for testing
+	// Simulate API returning exact same value from plan in JSON response
+	return number.ValueBigFloat().Text('f', 14)
+}
 
-	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
-	if resp.Diagnostics.HasError() {
-		return
+// Metadata returns the resource type name.
+func (r *thingResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_thing"
+}
+
+func (r *thingResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan thingResourceModel
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+
+	planNumStr := planNumberToString(plan.Number)
+	numberVal := parseNumber(planNumStr)
+
+	state := thingResourceModel{
+		Number:   numberVal,
+		Computed: types.StringValue("computed value"),
 	}
-
-	data.AttrTwo = types.StringValue("attr 2, update")
-	data.AttrThree = types.StringValue("attr 3, update")
-
-	resp.Diagnostics.Append(resp.State.Set(ctx, data)...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }
 
 func (r *thingResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var data thingResourceModel
-
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 
-	resp.Diagnostics.Append(resp.State.Set(ctx, data)...)
+	planNumStr := planNumberToString(data.Number)
+	data.Number = parseNumber(planNumStr)
+
+	data.Computed = types.StringValue("computed value")
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+}
+
+// Update updates the resource and sets the updated Terraform state on success.
+func (r *thingResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan thingResourceModel
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+
+	planNumStr := planNumberToString(plan.Number)
+	numberVal := parseNumber(planNumStr)
+
+	state := thingResourceModel{
+		Number:   numberVal,
+		Computed: types.StringValue("computed value"),
+	}
+	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }
 
 func (r *thingResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
