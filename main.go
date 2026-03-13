@@ -6,7 +6,7 @@ import (
 
 	"github.com/austinvalle/terraform-provider-sandbox/internal/provider"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
-	"github.com/hashicorp/terraform-plugin-go/tfprotov5/tf5server"
+	"github.com/hashicorp/terraform-plugin-go/tfprotov6/tf6server"
 )
 
 // Run "go generate" to format example terraform files and generate the docs for the registry/website
@@ -30,12 +30,12 @@ func main() {
 	// 	ProviderFunc: sdkprovider.New(),
 	// })
 
-	var serveOpts []tf5server.ServeOpt
+	var serveOpts []tf6server.ServeOpt
 
 	if *debugFlag {
 		serveOpts = append(
 			serveOpts,
-			tf5server.WithManagedDebug(),
+			tf6server.WithManagedDebug(),
 		)
 	}
 
@@ -46,13 +46,13 @@ func main() {
 
 		serveOpts = append(
 			serveOpts,
-			tf5server.WithManagedDebugEnvFilePath(*debugEnvFilePath),
+			tf6server.WithManagedDebugEnvFilePath(*debugEnvFilePath),
 		)
 	}
 
-	err := tf5server.Serve(
+	err := tf6server.Serve(
 		"registry.terraform.io/austinvalle/sandbox",
-		providerserver.NewProtocol5(provider.New()()),
+		providerserver.NewProtocol6(provider.New()()),
 		serveOpts...,
 	)
 	if err != nil {
