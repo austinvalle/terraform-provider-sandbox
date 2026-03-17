@@ -8,5 +8,5 @@ terraform {
 
 resource "examplecloud_thing" "test" {
   config_attr = "hello world"
-  ip_address  = "127.0.0."
+  ip_address  = "127.0.0.1"
 }
