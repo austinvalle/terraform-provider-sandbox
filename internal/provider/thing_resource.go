@@ -2,8 +2,10 @@ package provider
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework-nettypes/iptypes"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -47,13 +49,49 @@ func (r *thingResource) Metadata(_ context.Context, req resource.MetadataRequest
 }
 
 func (r *thingResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+
+	// Example 1: Getting all data from the plan
 	var data thingResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
+	// Example 2: Getting a single attribute from the plan with a framework type
+	var fwConfigAttr types.String // <- target == framework type
+	resp.Diagnostics.Append(req.Plan.GetAttribute(ctx, path.Root("config_attr"), &fwConfigAttr)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	fmt.Println(fwConfigAttr)
+
+	// Example 3: Getting a single attribute from the plan with a custom type
+	var fwIPAddr iptypes.IPv4Address // <- target == custom type (defined by package outside of framework)
+	resp.Diagnostics.Append(req.Plan.GetAttribute(ctx, path.Root("ip_address"), &fwIPAddr)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	fmt.Println(fwIPAddr)
+
+	// Example 4: Getting a single attribute from the plan with a Go native type
+	var stringIPAddr *string // <- target == Go native type that supports nil (pointer)
+	resp.Diagnostics.Append(req.Plan.GetAttribute(ctx, path.Root("ip_address"), &stringIPAddr)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if stringIPAddr != nil {
+		fmt.Println(*stringIPAddr)
+	}
+
+	// Typically would call an API here, get some returned data
+
+	// Set computed attributes from API
 	data.ComputedAttr = types.StringValue("computed value")
+
+	// Set to state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
