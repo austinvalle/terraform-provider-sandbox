@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-nettypes/iptypes"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -19,6 +20,8 @@ type thingResource struct{}
 type thingResourceModel struct {
 	ConfigAttr   types.String `tfsdk:"config_attr"`
 	ComputedAttr types.String `tfsdk:"computed_attr"`
+
+	IPAddress iptypes.IPv4Address `tfsdk:"ip_address"`
 }
 
 func (r *thingResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
@@ -30,6 +33,10 @@ func (r *thingResource) Schema(ctx context.Context, req resource.SchemaRequest, 
 			},
 			"computed_attr": schema.StringAttribute{
 				Computed: true,
+			},
+			"ip_address": schema.StringAttribute{
+				Optional:   true,
+				CustomType: iptypes.IPv4AddressType{},
 			},
 		},
 	}
