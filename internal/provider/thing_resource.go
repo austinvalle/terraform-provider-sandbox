@@ -91,8 +91,14 @@ func (r *thingResource) Create(ctx context.Context, req resource.CreateRequest, 
 	// Set computed attributes from API
 	data.ComputedAttr = types.StringValue("computed value")
 
-	// Set to state
+	// Example 1: Setting all data to state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Example 2: Set a single attribute from Go native type
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("computed_attr"), "updated computed value!")...)
 }
 
 func (r *thingResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
