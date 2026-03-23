@@ -2,10 +2,7 @@ package provider
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-framework-nettypes/iptypes"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -23,7 +20,7 @@ type thingResourceModel struct {
 	ConfigAttr   types.String `tfsdk:"config_attr"`
 	ComputedAttr types.String `tfsdk:"computed_attr"`
 
-	IPAddress iptypes.IPv4Address `tfsdk:"ip_address"`
+	BreakDataConsistency types.Bool `tfsdk:"break_data_consistency"`
 }
 
 func (r *thingResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
@@ -36,9 +33,8 @@ func (r *thingResource) Schema(ctx context.Context, req resource.SchemaRequest, 
 			"computed_attr": schema.StringAttribute{
 				Computed: true,
 			},
-			"ip_address": schema.StringAttribute{
-				Optional:   true,
-				CustomType: iptypes.IPv4AddressType{},
+			"break_data_consistency": schema.BoolAttribute{
+				Optional: true,
 			},
 		},
 	}
@@ -49,56 +45,19 @@ func (r *thingResource) Metadata(_ context.Context, req resource.MetadataRequest
 }
 
 func (r *thingResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-
-	// Example 1: Getting all data from the plan
 	var data thingResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Example 2: Getting a single attribute from the plan with a framework type
-	var fwConfigAttr types.String // <- target == framework type
-	resp.Diagnostics.Append(req.Plan.GetAttribute(ctx, path.Root("config_attr"), &fwConfigAttr)...)
-	if resp.Diagnostics.HasError() {
-		return
+	// This intentionally produces an invalid resource state by changing a user-configured value
+	if data.BreakDataConsistency.ValueBool() {
+		data.ConfigAttr = types.StringValue(data.ConfigAttr.ValueString() + " - data from the provider!")
 	}
 
-	fmt.Println(fwConfigAttr)
-
-	// Example 3: Getting a single attribute from the plan with a custom type
-	var fwIPAddr iptypes.IPv4Address // <- target == custom type (defined by package outside of framework)
-	resp.Diagnostics.Append(req.Plan.GetAttribute(ctx, path.Root("ip_address"), &fwIPAddr)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	fmt.Println(fwIPAddr)
-
-	// Example 4: Getting a single attribute from the plan with a Go native type
-	var stringIPAddr *string // <- target == Go native type that supports nil (pointer)
-	resp.Diagnostics.Append(req.Plan.GetAttribute(ctx, path.Root("ip_address"), &stringIPAddr)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	if stringIPAddr != nil {
-		fmt.Println(*stringIPAddr)
-	}
-
-	// Typically would call an API here, get some returned data
-
-	// Set computed attributes from API
 	data.ComputedAttr = types.StringValue("computed value")
-
-	// Example 1: Setting all data to state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// Example 2: Set a single attribute from Go native type
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("computed_attr"), "updated computed value!")...)
 }
 
 func (r *thingResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -106,6 +65,11 @@ func (r *thingResource) Read(ctx context.Context, req resource.ReadRequest, resp
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
+	}
+
+	// This intentionally produces an invalid resource state by changing a user-configured value
+	if data.BreakDataConsistency.ValueBool() {
+		data.ConfigAttr = types.StringValue(data.ConfigAttr.ValueString() + " - data from the provider!")
 	}
 
 	data.ComputedAttr = types.StringValue("computed value")
@@ -117,6 +81,11 @@ func (r *thingResource) Update(ctx context.Context, req resource.UpdateRequest, 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
+	}
+
+	// This intentionally produces an invalid resource state by changing a user-configured value
+	if data.BreakDataConsistency.ValueBool() {
+		data.ConfigAttr = types.StringValue(data.ConfigAttr.ValueString() + " - data from the provider!")
 	}
 
 	data.ComputedAttr = types.StringValue("computed value")

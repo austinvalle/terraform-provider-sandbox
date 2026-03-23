@@ -7,6 +7,7 @@ terraform {
 }
 
 resource "examplecloud_thing" "test" {
-  config_attr = "hello world"
-  ip_address  = "127.0.0.1"
+  config_attr = "hello"
+
+  # break_data_consistency = true # ru roh
 }
