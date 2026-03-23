@@ -3,12 +3,15 @@ package provider
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 var _ resource.Resource = (*thingResource)(nil)
+var _ resource.ResourceWithModifyPlan = (*thingResource)(nil)
+var _ resource.ResourceWithImportState = (*thingResource)(nil)
 
 func NewThingResource() resource.Resource {
 	return &thingResource{}
@@ -42,6 +45,26 @@ func (r *thingResource) Schema(ctx context.Context, req resource.SchemaRequest, 
 
 func (r *thingResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_thing"
+}
+
+func (r *thingResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	resource.ImportStatePassthroughID(ctx, path.Root("computed_attr"), req, resp)
+}
+
+func (r *thingResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	// var data thingResourceModel
+	// resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	// if resp.Diagnostics.HasError() {
+	// 	return
+	// }
+
+	// //This intentionally produces an invalid resource state by changing a user-configured value
+	// if data.BreakDataConsistency.ValueBool() {
+	// 	data.ConfigAttr = types.StringValue(data.ConfigAttr.ValueString() + " - data from the provider!")
+	// }
+
+	// data.ComputedAttr = types.StringValue("computed value")
+	// resp.Diagnostics.Append(resp.Plan.Set(ctx, &data)...)
 }
 
 func (r *thingResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
