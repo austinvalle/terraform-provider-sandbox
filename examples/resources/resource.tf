@@ -16,10 +16,10 @@ resource "examplecloud_thing" "test" {
 #   input = examplecloud_thing.test.config_attr
 # }
 
-import {
-  id = "hello"
-  to = examplecloud_thing.test
-}
+# import {
+#   id = "hello"
+#   to = examplecloud_thing.test
+# }
 
 
 ## Data consistency rules ##
